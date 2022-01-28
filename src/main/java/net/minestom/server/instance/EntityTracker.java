@@ -80,13 +80,10 @@ public sealed interface EntityTracker permits EntityTrackerImpl {
         visibleEntities(point.chunkX(), point.chunkZ(), target, query);
     }
 
-    /**
-     * Gets a list containing references to all the entity lists visible from a chunk
-     */
-    <T extends Entity> @NotNull List<List<T>> references(int chunkX, int chunkZ, @NotNull Target<T> target);
+    <T extends Entity> @NotNull List<List<T>> references(int chunkX, int chunkZ, int range, @NotNull Target<T> target);
 
-    default <T extends Entity> @NotNull List<List<T>> references(@NotNull Point point, @NotNull Target<T> target) {
-        return references(point.chunkX(), point.chunkZ(), target);
+    default <T extends Entity> @NotNull List<List<T>> references(@NotNull Point point, int range, @NotNull Target<T> target) {
+        return references(point.chunkX(), point.chunkZ(), range, target);
     }
 
     /**

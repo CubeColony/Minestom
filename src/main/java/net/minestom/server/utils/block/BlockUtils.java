@@ -1,12 +1,19 @@
 package net.minestom.server.utils.block;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.utils.ArrayUtils;
+import net.minestom.server.instance.block.BlockHandler;
+import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jglrxavpok.hephaistos.nbt.NBT;
+import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class BlockUtils {
 
@@ -74,13 +81,35 @@ public class BlockUtils {
                 if (equalIndex != -1 && equalIndex < index) {
                     final String key = query.substring(start, equalIndex).trim();
                     final String value = query.substring(equalIndex + 1, index).trim();
-                    keys[entryCount] = key.intern();
-                    values[entryCount++] = value.intern();
+                    keys[entryCount] = key;
+                    values[entryCount++] = value;
                 }
                 start = index + 1;
             }
             index++;
         }
-        return ArrayUtils.toMap(keys, values, entryCount);
+        return new Object2ObjectArrayMap<>(keys, values, entryCount);
+    }
+
+    public static @Nullable NBTCompound extractClientNbt(@NotNull Block block) {
+        if (!block.registry().isBlockEntity()) return null;
+        // Append handler tags
+        final BlockHandler handler = block.handler();
+        final NBTCompound blockNbt = Objects.requireNonNullElseGet(block.nbt(), NBTCompound::new);
+        if (handler != null) {
+            // Extract explicitly defined tags and keep the rest server-side
+            return NBT.Compound(nbt -> {
+                for (Tag<?> tag : handler.getBlockEntityTags()) {
+                    final var value = tag.read(blockNbt);
+                    if (value != null) {
+                        // Tag is present and valid
+                        tag.writeUnsafe(nbt, value);
+                    }
+                }
+            });
+        }
+        // Complete nbt shall be sent if the block has no handler
+        // Necessary to support all vanilla blocks
+        return blockNbt;
     }
 }
