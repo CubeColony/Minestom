@@ -18,7 +18,7 @@ public class PlayerBlockInteractEvent implements PlayerEvent, EntityInstanceEven
 
     private final Player player;
     private final Player.Hand hand;
-    private final Block block;
+    private Block block;
     private final Point blockPosition;
     private final BlockFace blockFace;
 
@@ -56,6 +56,10 @@ public class PlayerBlockInteractEvent implements PlayerEvent, EntityInstanceEven
     @Override
     public @NotNull Block getBlock() {
         return block;
+    }
+
+    public void setBlock(Block block) {
+        this.block = block;
     }
 
     /**
