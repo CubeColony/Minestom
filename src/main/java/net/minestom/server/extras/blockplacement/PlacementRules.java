@@ -5,14 +5,16 @@ import net.minestom.server.event.Event;
 import net.minestom.server.event.EventBinding;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
-import net.minestom.server.event.player.*;
+import net.minestom.server.event.player.PlayerBlockInteractEvent;
+import net.minestom.server.event.player.PlayerBlockPlaceEvent;
+import net.minestom.server.event.player.PlayerBlockUpdateNeighborEvent;
+import net.minestom.server.event.player.PlayerUseItemOnBlockEvent;
 import net.minestom.server.event.trait.BlockEvent;
 import net.minestom.server.event.trait.ItemEvent;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.network.packet.client.play.ClientPickItemPacket;
 import net.minestom.server.utils.NamespaceID;
 
 import java.util.Set;
@@ -61,6 +63,10 @@ public final class PlacementRules {
     // Redstone dust (dot toggle)
 
     /* Filters */
+
+    private static final EventBinding<BlockEvent> ANVIL_BINDING = EventBinding.filtered(EventFilter.BLOCK, PlacementRules::hasAxis)
+            .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicAnvil::onPlace)
+            .build();
 
     private static final EventBinding<BlockEvent> STAIRS_BINDING = EventBinding.filtered(EventFilter.BLOCK, PlacementRules::isStairs)
             .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicStairShape::onPlace)
@@ -368,6 +374,7 @@ public final class PlacementRules {
         eventNode.register(UPPER_BINDING);
 
         // Specific blocks
+        eventNode.register(ANVIL_BINDING);
         eventNode.register(STAIRS_BINDING);
         eventNode.register(WALLS_BINDING);
         eventNode.register(SLAB_BINDING);
