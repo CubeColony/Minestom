@@ -254,13 +254,9 @@ final class ServerProcessImpl implements ServerProcess {
         LOGGER.info("Stopping Minestom server.");
         LOGGER.info("Unloading all extensions.");
         extension.shutdown();
-        LOGGER.info("1");
         scheduler.shutdown();
-        LOGGER.info("2");
         connection.shutdown();
-        LOGGER.info("3");
         server.stop();
-        LOGGER.info("4");
         storage.getLoadedLocations().forEach(StorageLocation::close);
         LOGGER.info("Shutting down all thread pools.");
         benchmark.disable();
