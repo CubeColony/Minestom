@@ -15,7 +15,6 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.metadata.EntityMeta;
 import net.minestom.server.event.EventDispatcher;
-import net.minestom.server.event.GlobalHandles;
 import net.minestom.server.event.entity.*;
 import net.minestom.server.event.instance.AddEntityToInstanceEvent;
 import net.minestom.server.event.instance.RemoveEntityFromInstanceEvent;
@@ -129,7 +128,10 @@ public class Entity implements Viewable, Tickable, Schedulable, TagHandler, Perm
 
         @Override
         public void referenceUpdate(@NotNull Point point, @Nullable EntityTracker tracker) {
-            viewEngine.updateTracker(instance, point, tracker);
+            final Instance currentInstance = tracker != null ? instance : null;
+            assert currentInstance == null || currentInstance.getEntityTracker() == tracker :
+                    "EntityTracker does not match current instance";
+            viewEngine.updateTracker(currentInstance, point);
         }
     };
 
@@ -542,7 +544,7 @@ public class Entity implements Viewable, Tickable, Schedulable, TagHandler, Perm
             update(time);
 
             ticks++;
-            GlobalHandles.ENTITY_TICK.call(new EntityTickEvent(this));
+            EventDispatcher.call(new EntityTickEvent(this));
 
             // remove expired effects
             effectTick(time);
@@ -598,7 +600,7 @@ public class Entity implements Viewable, Tickable, Schedulable, TagHandler, Perm
             return;
         }
 
-        if (this instanceof ItemEntity) {
+        if (entityType == EntityTypes.ITEM || entityType == EntityType.FALLING_BLOCK) {
             // TODO find other exceptions
             this.previousPosition = this.position;
             this.position = finalVelocityPosition;
