@@ -64,6 +64,9 @@ import net.minestom.server.recipe.RecipeManager;
 import net.minestom.server.resourcepack.ResourcePack;
 import net.minestom.server.scoreboard.BelowNameTag;
 import net.minestom.server.scoreboard.Team;
+import net.minestom.server.snapshot.EntitySnapshot;
+import net.minestom.server.snapshot.PlayerSnapshot;
+import net.minestom.server.snapshot.SnapshotUpdater;
 import net.minestom.server.statistic.PlayerStatistic;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.utils.MathUtils;
@@ -240,7 +243,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
         NBTCompound nbt = NBT.Compound(Map.of(
                 "minecraft:dimension_type", MinecraftServer.getDimensionTypeManager().toNBT(),
                 "minecraft:worldgen/biome", MinecraftServer.getBiomeManager().toNBT()));
-        final JoinGamePacket joinGamePacket = new JoinGamePacket(getEntityId(), gameMode.isHardcore(), gameMode, null,
+        final JoinGamePacket joinGamePacket = new JoinGamePacket(getEntityId(), false, gameMode, null,
                 List.of("minestom:world"), nbt, dimensionType.toNBT(), dimensionType.getName().asString(),
                 0, 0, MinecraftServer.getChunkViewDistance(), MinecraftServer.getChunkViewDistance(),
                 false, true, false, levelFlat);
@@ -1227,7 +1230,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
         this.gameMode = gameMode;
         // Condition to prevent sending the packets before spawning the player
         if (isActive()) {
-            sendPacket(new ChangeGameStatePacket(ChangeGameStatePacket.Reason.CHANGE_GAMEMODE, gameMode.getId()));
+            sendPacket(new ChangeGameStatePacket(ChangeGameStatePacket.Reason.CHANGE_GAMEMODE, gameMode.id()));
             PacketUtils.broadcastPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.UPDATE_GAMEMODE,
                     new PlayerInfoPacket.UpdateGameMode(getUuid(), gameMode)));
         }
@@ -1956,6 +1959,12 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
         final String locale = settings.locale;
         if (locale == null) return null;
         return Locale.forLanguageTag(locale.replace("_", "-"));
+    }
+
+    @Override
+    public @NotNull PlayerSnapshot updateSnapshot(@NotNull SnapshotUpdater updater) {
+        final EntitySnapshot snapshot = super.updateSnapshot(updater);
+        return new EntitySnapshotImpl.Player(snapshot, username, gameMode);
     }
 
     /**
