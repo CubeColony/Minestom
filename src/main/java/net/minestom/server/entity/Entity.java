@@ -6,6 +6,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEvent.ShowEntity;
 import net.kyori.adventure.text.event.HoverEventSource;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.ServerProcess;
 import net.minestom.server.Tickable;
 import net.minestom.server.Viewable;
 import net.minestom.server.collision.BoundingBox;
@@ -15,9 +16,13 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.metadata.EntityMeta;
 import net.minestom.server.event.EventDispatcher;
+import net.minestom.server.event.EventFilter;
+import net.minestom.server.event.EventHandler;
+import net.minestom.server.event.EventNode;
 import net.minestom.server.event.entity.*;
 import net.minestom.server.event.instance.AddEntityToInstanceEvent;
 import net.minestom.server.event.instance.RemoveEntityFromInstanceEvent;
+import net.minestom.server.event.trait.EntityEvent;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.EntityTracker;
 import net.minestom.server.instance.Instance;
@@ -77,7 +82,7 @@ import java.util.function.UnaryOperator;
  * <p>
  * To create your own entity you probably want to extends {@link LivingEntity} or {@link EntityCreature} instead.
  */
-public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, TagHandler, PermissionHandler, HoverEventSource<ShowEntity>, Sound.Emitter {
+public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, EventHandler<EntityEvent>, TagHandler, PermissionHandler, HoverEventSource<ShowEntity>, Sound.Emitter {
 
     private static final Int2ObjectSyncMap<Entity> ENTITY_BY_ID = Int2ObjectSyncMap.hashmap();
     private static final Map<UUID, Entity> ENTITY_BY_UUID = new ConcurrentHashMap<>();
@@ -143,6 +148,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ta
     protected final Set<Player> viewers = viewEngine.set;
     private final MutableNBTCompound nbtCompound = new MutableNBTCompound();
     private final Scheduler scheduler = Scheduler.newScheduler();
+    private final EventNode<EntityEvent> eventNode;
     private final Set<Permission> permissions = new CopyOnWriteArraySet<>();
 
     protected UUID uuid;
@@ -184,6 +190,14 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ta
 
         this.gravityAcceleration = entityType.registry().acceleration();
         this.gravityDragPerTick = entityType.registry().drag();
+
+        final ServerProcess process = MinecraftServer.process();
+        if (process != null) {
+            this.eventNode = process.eventHandler().map(this, EventFilter.ENTITY);
+        } else {
+            // Local nodes require a server process
+            this.eventNode = null;
+        }
     }
 
     public Entity(@NotNull EntityType entityType) {
@@ -1541,6 +1555,12 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ta
                 updater.reference(instance), chunk.getChunkX(), chunk.getChunkZ(),
                 viewersId, passengersId, vehicle == null ? -1 : vehicle.getEntityId(),
                 TagReadable.fromCompound(nbtCompound.toCompound()));
+    }
+
+    @Override
+    @ApiStatus.Experimental
+    public @NotNull EventNode<EntityEvent> eventNode() {
+        return eventNode;
     }
 
     /**
