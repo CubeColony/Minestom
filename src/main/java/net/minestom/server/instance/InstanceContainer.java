@@ -206,35 +206,6 @@ public class InstanceContainer extends Instance {
 
             toUpdate.add(blockPosition);
             updatedNeighbors.add(blockPosition); //Don't update the block we just broke
-
-            for(int i = 0; i< BlockPlacementListener.MAX_NEIGHBOR_UPDATE_LENGTH; i++) {
-                Set<Point> toUpdateCopy = new HashSet<>(toUpdate);
-                toUpdate.clear();
-
-                for (Point pos : toUpdateCopy) {
-                    for (Vec dir : BlockPlacementListener.DIRS) {
-                        Point position = pos.add(dir);
-
-                        if (updatedNeighbors.contains(position)) continue;
-                        updatedNeighbors.add(position);
-
-                        Block neighbor = getBlock(position);
-
-                        if (neighbor.isAir()) continue;
-
-                        PlayerBlockUpdateNeighborEvent playerBlockUpdateNeighborEvent = new PlayerBlockUpdateNeighborEvent(player, neighbor, position);
-                        EventDispatcher.call(playerBlockUpdateNeighborEvent);
-
-                        if (playerBlockUpdateNeighborEvent.getBlock() != neighbor) {
-                            setBlock(position, playerBlockUpdateNeighborEvent.getBlock());
-                        }
-
-                        if (playerBlockUpdateNeighborEvent.isShouldUpdateNeighbors()) {
-                            toUpdate.add(position);
-                        }
-                    }
-                }
-            }
         }
         return allowed;
     }
