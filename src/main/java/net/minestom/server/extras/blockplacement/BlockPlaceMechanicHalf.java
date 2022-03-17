@@ -17,7 +17,7 @@ final class BlockPlaceMechanicHalf {
                         String propertyName, String propertyValTop, String propertyValBot) {
         block = event.getBlock();
 
-        BlockFace face = event.getBlockFace();
+        final BlockFace face = event.getBlockFace();
         if (face == BlockFace.TOP) {
             event.setBlock(block.withProperty(propertyName, propertyValBot));
         } else if (face == BlockFace.BOTTOM) {

@@ -16,22 +16,23 @@ import org.jetbrains.annotations.NotNull;
 public class PlayerBlockPlaceEvent implements PlayerEvent, EntityInstanceEvent, BlockEvent, CancellableEvent {
 
     private final Player player;
-    private Block block;
     private final BlockFace blockFace;
     private final Point blockPosition;
+    private final Point cursorPosition;
     private final Player.Hand hand;
-
+    private Block block;
     private boolean consumeBlock;
 
     private boolean cancelled;
 
     public PlayerBlockPlaceEvent(@NotNull Player player, @NotNull Block block,
-                                 @NotNull BlockFace blockFace,
-                                 @NotNull Point blockPosition, @NotNull Player.Hand hand) {
+                                 @NotNull BlockFace blockFace, @NotNull Point blockPosition,
+                                 @NotNull Point cursorPosition, @NotNull Player.Hand hand) {
         this.player = player;
         this.block = block;
         this.blockFace = blockFace;
         this.blockPosition = blockPosition;
+        this.cursorPosition = cursorPosition;
         this.hand = hand;
         this.consumeBlock = true;
     }
@@ -43,7 +44,7 @@ public class PlayerBlockPlaceEvent implements PlayerEvent, EntityInstanceEvent, 
      */
     @Override
     public @NotNull Block getBlock() {
-        return block;
+        return this.block;
     }
 
     /**
@@ -56,7 +57,7 @@ public class PlayerBlockPlaceEvent implements PlayerEvent, EntityInstanceEvent, 
     }
 
     public @NotNull BlockFace getBlockFace() {
-        return blockFace;
+        return this.blockFace;
     }
 
     /**
@@ -65,7 +66,11 @@ public class PlayerBlockPlaceEvent implements PlayerEvent, EntityInstanceEvent, 
      * @return the block position
      */
     public @NotNull Point getBlockPosition() {
-        return blockPosition;
+        return this.blockPosition;
+    }
+
+    public Point getCursorPosition() {
+        return this.cursorPosition;
     }
 
     /**
@@ -74,7 +79,7 @@ public class PlayerBlockPlaceEvent implements PlayerEvent, EntityInstanceEvent, 
      * @return the hand used
      */
     public @NotNull Player.Hand getHand() {
-        return hand;
+        return this.hand;
     }
 
     /**
@@ -92,12 +97,12 @@ public class PlayerBlockPlaceEvent implements PlayerEvent, EntityInstanceEvent, 
      * @return true if the block will be consumed, false otherwise
      */
     public boolean doesConsumeBlock() {
-        return consumeBlock;
+        return this.consumeBlock;
     }
 
     @Override
     public boolean isCancelled() {
-        return cancelled;
+        return this.cancelled;
     }
 
     @Override
@@ -107,6 +112,6 @@ public class PlayerBlockPlaceEvent implements PlayerEvent, EntityInstanceEvent, 
 
     @Override
     public @NotNull Player getPlayer() {
-        return player;
+        return this.player;
     }
 }
