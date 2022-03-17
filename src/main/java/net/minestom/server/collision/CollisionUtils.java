@@ -1,14 +1,14 @@
 package net.minestom.server.collision;
 
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.WorldBorder;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.Material;
-import net.minestom.server.utils.chunk.ChunkUtils;
+import net.minestom.server.utils.chunk.ChunkCache;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,11 +30,20 @@ public final class CollisionUtils {
      */
     public static PhysicsResult handlePhysics(@NotNull Entity entity, @NotNull Vec entityVelocity,
                                               @Nullable PhysicsResult lastPhysicsResult) {
-        return BlockCollision.handlePhysics(entity, entityVelocity, lastPhysicsResult);
+        final BoundingBox boundingBox = entity.getBoundingBox();
+        final Pos currentPosition = entity.getPosition();
+        final Block.Getter getter = new ChunkCache(entity.getInstance(), entity.getChunk(), Block.STONE);
+        return BlockCollision.handlePhysics(boundingBox,
+                entityVelocity, currentPosition,
+                getter, lastPhysicsResult);
     }
 
     public static PhysicsResult handlePhysics(@NotNull Entity entity, @NotNull Vec entityVelocity) {
         return handlePhysics(entity, entityVelocity, null);
+    }
+
+    public static boolean canPlaceBlockAt(Instance instance, Point blockPos, Block b) {
+        return BlockCollision.canPlaceBlockAt(instance, blockPos, b);
     }
 
     /**

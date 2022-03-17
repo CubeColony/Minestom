@@ -1,17 +1,13 @@
 package net.minestom.server.listener;
 
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.collision.CollisionUtils;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.player.PlayerBlockInteractEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
-import net.minestom.server.event.player.PlayerBlockUpdateNeighborEvent;
 import net.minestom.server.event.player.PlayerUseItemOnBlockEvent;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
@@ -28,18 +24,8 @@ import net.minestom.server.network.packet.server.play.BlockChangePacket;
 import net.minestom.server.utils.chunk.ChunkUtils;
 import net.minestom.server.utils.validate.Check;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 public class BlockPlacementListener {
     private static final BlockManager BLOCK_MANAGER = MinecraftServer.getBlockManager();
-    public static final int MAX_NEIGHBOR_UPDATE_LENGTH = 4;
-    public static final Vec[] DIRS = {
-            new Vec(1, 0, 0), new Vec(-1, 0, 0),
-            new Vec(0, 1, 0), new Vec(0, -1, 0),
-            new Vec(0, 0, 1), new Vec(0, 0, -1)
-    };
 
     public static void listener(ClientPlayerBlockPlacementPacket packet, Player player) {
         final PlayerInventory playerInventory = player.getInventory();
@@ -65,25 +51,14 @@ public class BlockPlacementListener {
         // FIXME: onUseOnBlock
         PlayerBlockInteractEvent playerBlockInteractEvent = new PlayerBlockInteractEvent(player, hand, interactedBlock, blockPosition, blockFace);
         EventDispatcher.call(playerBlockInteractEvent);
-        boolean cancelBlockPlacement = playerBlockInteractEvent.isBlockingItemUse();
-        boolean refreshBlock = cancelBlockPlacement;
+        boolean blockUse = playerBlockInteractEvent.isBlockingItemUse();
         if (!playerBlockInteractEvent.isCancelled()) {
             final var handler = interactedBlock.handler();
             if (handler != null) {
-                cancelBlockPlacement |= !handler.onInteract(new BlockHandler.Interaction(interactedBlock, instance, blockPosition, player, hand));
-                refreshBlock = cancelBlockPlacement;
-            }
-            if (playerBlockInteractEvent.getBlock() != interactedBlock) {
-                instance.setBlock(blockPosition, playerBlockInteractEvent.getBlock());
-                refreshBlock = false;
+                blockUse |= !handler.onInteract(new BlockHandler.Interaction(interactedBlock, instance, blockPosition, player, hand));
             }
         }
-
-        if (refreshBlock) {
-            player.getPlayerConnection().sendPacket(new BlockChangePacket(blockPosition, interactedBlock));
-        }
-
-        if (cancelBlockPlacement) {
+        if (blockUse) {
             refresh(player, interactedChunk);
             return;
         }
@@ -130,30 +105,12 @@ public class BlockPlacementListener {
         }
 
         final Block placedBlock = useMaterial.block();
-        final Collection<Entity> entities = instance.getNearbyEntities(placementPosition, 5);
-
-        // Check if the player is trying to place a block in an entity
-        boolean intersectPlayer = placedBlock.registry().collisionShape().intersectBox(player.getPosition().sub(placementPosition), player.getBoundingBox());
-
-        boolean hasIntersect = intersectPlayer || entities
-                .stream()
-                .filter(entity -> entity.getEntityType() != EntityType.ITEM)
-                .filter(entity -> {
-                    // Marker Armor Stands should not prevent block placement
-                    if (entity.getEntityMeta() instanceof ArmorStandMeta armorStandMeta) {
-                        return !armorStandMeta.isMarker();
-                    }
-                    return true;
-                })
-                .anyMatch(entity -> placedBlock.registry().collisionShape().intersectBox(entity.getPosition().sub(placementPosition), entity.getBoundingBox()));
-
-        if (hasIntersect) {
+        if (!CollisionUtils.canPlaceBlockAt(instance, placementPosition, placedBlock)) {
             refresh(player, chunk);
             return;
         }
         // BlockPlaceEvent check
-        Point cursorPosition = new Vec(packet.cursorPositionX(), packet.cursorPositionY(), packet.cursorPositionZ());
-        PlayerBlockPlaceEvent playerBlockPlaceEvent = new PlayerBlockPlaceEvent(player, placedBlock, blockFace, placementPosition, cursorPosition, packet.hand());
+        PlayerBlockPlaceEvent playerBlockPlaceEvent = new PlayerBlockPlaceEvent(player, placedBlock, blockFace, placementPosition, packet.hand());
         playerBlockPlaceEvent.consumeBlock(player.getGameMode() != GameMode.CREATIVE);
         EventDispatcher.call(playerBlockPlaceEvent);
         if (playerBlockPlaceEvent.isCancelled()) {
@@ -180,42 +137,6 @@ public class BlockPlacementListener {
             // Consume the block in the player's hand
             final ItemStack newUsedItem = usedItem.getStackingRule().apply(usedItem, usedItem.getAmount() - 1);
             playerInventory.setItemInHand(hand, newUsedItem);
-        }
-
-        // Update neighbors
-        Set<Point> updatedNeighbors = new HashSet<>();
-        Set<Point> toUpdate = new HashSet<>();
-
-        toUpdate.add(placementPosition);
-        updatedNeighbors.add(placementPosition); //Don't update the block we just placed
-
-        for(int i=0; i<MAX_NEIGHBOR_UPDATE_LENGTH; i++) {
-            Set<Point> toUpdateCopy = new HashSet<>(toUpdate);
-            toUpdate.clear();
-
-            for(Point pos : toUpdateCopy) {
-                for(Vec dir : DIRS) {
-                    Point position = pos.add(dir);
-
-                    if(updatedNeighbors.contains(position)) continue;
-                    updatedNeighbors.add(position);
-
-                    Block block = instance.getBlock(position);
-
-                    if(block.isAir()) continue;
-
-                    PlayerBlockUpdateNeighborEvent playerBlockUpdateNeighborEvent = new PlayerBlockUpdateNeighborEvent(player, block, position);
-                    EventDispatcher.call(playerBlockUpdateNeighborEvent);
-
-                    if (playerBlockUpdateNeighborEvent.getBlock() != block) {
-                        instance.setBlock(position, playerBlockUpdateNeighborEvent.getBlock());
-                    }
-
-                    if (playerBlockUpdateNeighborEvent.isShouldUpdateNeighbors()) {
-                        toUpdate.add(position);
-                    }
-                }
-            }
         }
     }
 
