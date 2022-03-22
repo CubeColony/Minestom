@@ -2,17 +2,14 @@ package net.minestom.server.network;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
 import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.login.LoginSuccessPacket;
-import net.minestom.server.network.packet.server.play.DisconnectPacket;
 import net.minestom.server.network.packet.server.play.KeepAlivePacket;
 import net.minestom.server.network.player.PlayerConnection;
-import net.minestom.server.network.player.PlayerSocketConnection;
 import net.minestom.server.utils.StringUtils;
 import net.minestom.server.utils.async.AsyncUtils;
 import net.minestom.server.utils.debug.DebugUtils;
@@ -45,8 +42,6 @@ public final class ConnectionManager {
     private volatile UuidProvider uuidProvider = (playerConnection, username) -> UUID.randomUUID();
     // The player provider to have your own Player implementation
     private volatile PlayerProvider playerProvider = Player::new;
-
-    private Component shutdownText = Component.text("The server is shutting down.", NamedTextColor.RED);
 
     /**
      * Gets the {@link Player} linked to a {@link PlayerConnection}.
@@ -168,25 +163,6 @@ public final class ConnectionManager {
         return playerProvider;
     }
 
-    /**
-     * Gets the kick reason when the server is shutdown using {@link MinecraftServer#stopCleanly()}.
-     *
-     * @return the kick reason in case on a shutdown
-     */
-    public @NotNull Component getShutdownText() {
-        return shutdownText;
-    }
-
-    /**
-     * Changes the kick reason in case of a shutdown.
-     *
-     * @param shutdownText the new shutdown kick reason
-     * @see #getShutdownText()
-     */
-    public void setShutdownText(@NotNull Component shutdownText) {
-        this.shutdownText = shutdownText;
-    }
-
     public synchronized void registerPlayer(@NotNull Player player) {
         this.players.add(player);
         this.connectionPlayerMap.put(player.getPlayerConnection(), player);
@@ -221,12 +197,8 @@ public final class ConnectionManager {
             // Call pre login event
             AsyncPlayerPreLoginEvent asyncPlayerPreLoginEvent = new AsyncPlayerPreLoginEvent(player);
             EventDispatcher.call(asyncPlayerPreLoginEvent);
-            // Close the player channel if he has been disconnected (kick)
-            if (!player.isOnline()) {
-                playerConnection.flush();
-                //playerConnection.disconnect();
-                return;
-            }
+            if (!player.isOnline())
+                return; // Player has been kicked
             // Change UUID/Username based on the event
             {
                 final String eventUsername = asyncPlayerPreLoginEvent.getUsername();
@@ -240,11 +212,7 @@ public final class ConnectionManager {
             }
             // Send login success packet
             LoginSuccessPacket loginSuccessPacket = new LoginSuccessPacket(player.getUuid(), player.getUsername());
-            if (playerConnection instanceof PlayerSocketConnection socketConnection) {
-                socketConnection.writeAndFlush(loginSuccessPacket);
-            } else {
-                playerConnection.sendPacket(loginSuccessPacket);
-            }
+            playerConnection.sendPacket(loginSuccessPacket);
             playerConnection.setConnectionState(ConnectionState.PLAY);
             if (register) registerPlayer(player);
             this.waitingPlayers.relaxedOffer(player);
@@ -270,14 +238,6 @@ public final class ConnectionManager {
      * Shutdowns the connection manager by kicking all the currently connected players.
      */
     public synchronized void shutdown() {
-        DisconnectPacket disconnectPacket = new DisconnectPacket(shutdownText);
-        for (Player player : getOnlinePlayers()) {
-            final PlayerConnection playerConnection = player.getPlayerConnection();
-            playerConnection.sendPacket(disconnectPacket);
-            playerConnection.flush();
-            player.remove();
-            playerConnection.disconnect();
-        }
         this.players.clear();
         this.connectionPlayerMap.clear();
     }
