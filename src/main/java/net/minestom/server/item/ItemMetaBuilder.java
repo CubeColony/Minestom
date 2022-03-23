@@ -148,6 +148,11 @@ public abstract class ItemMetaBuilder implements TagWritable {
     }
 
     @Contract("_ -> this")
+    public @NotNull ItemMetaBuilder model(int customModelData) {
+        return this.customModelData(customModelData);
+    }
+
+    @Contract("_ -> this")
     public @NotNull ItemMetaBuilder canPlaceOn(@NotNull Set<@NotNull Block> blocks) {
         this.canPlaceOn = new HashSet<>(blocks);
         handleCollection(canPlaceOn, "CanPlaceOn", () -> NBT.List(
