@@ -1,6 +1,7 @@
 package net.minestom.server.tag;
 
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.collection.IndexMap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -8,9 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -23,12 +21,11 @@ import java.util.function.Supplier;
  */
 @ApiStatus.NonExtendable
 public class Tag<T> {
-    private static final Map<String, Integer> INDEX_MAP = new ConcurrentHashMap<>();
-    private static final AtomicInteger INDEX = new AtomicInteger();
+    private static final IndexMap<String> INDEX_MAP = new IndexMap<>();
 
     private final String key;
-    private final Function<NBT, T> readFunction;
-    private final Function<T, NBT> writeFunction;
+    final Function<NBT, T> readFunction;
+    final Function<T, NBT> writeFunction;
     private final Supplier<T> defaultValue;
 
     final int index;
@@ -41,15 +38,13 @@ public class Tag<T> {
         this.readFunction = readFunction;
         this.writeFunction = writeFunction;
         this.defaultValue = defaultValue;
-
-        this.index = INDEX_MAP.computeIfAbsent(key, k -> INDEX.getAndIncrement());
+        this.index = INDEX_MAP.get(key);
     }
 
     static <T, N extends NBT> Tag<T> tag(@NotNull String key,
-                                         @NotNull Class<N> nbtClass,
                                          @NotNull Function<N, T> readFunction,
                                          @NotNull Function<T, N> writeFunction) {
-        return new Tag<T>(key, (Function<NBT, T>) readFunction, (Function<T, NBT>) writeFunction, null);
+        return new Tag<>(key, (Function<NBT, T>) readFunction, (Function<T, NBT>) writeFunction, null);
     }
 
     /**
@@ -88,12 +83,15 @@ public class Tag<T> {
 
     public @Nullable T read(@NotNull NBTCompoundLike nbt) {
         final String key = this.key;
-        if (key.isEmpty()) {
-            // Special handling for view tag
-            return convertToValue(nbt.toCompound());
+        final NBT readable = key.isEmpty() ? nbt.toCompound() : nbt.get(key);
+        final T result;
+        try {
+            if (readable == null || (result = readFunction.apply(readable)) == null)
+                return createDefault();
+            return result;
+        } catch (ClassCastException e) {
+            return createDefault();
         }
-        final NBT subTag = nbt.get(key);
-        return convertToValue(subTag);
     }
 
     T createDefault() {
@@ -118,52 +116,36 @@ public class Tag<T> {
         write(nbtCompound, (T) value);
     }
 
-    T convertToValue(NBT nbt) {
-        final T result;
-        try {
-            if (nbt == null || (result = readFunction.apply(nbt)) == null)
-                return createDefault();
-            return result;
-        } catch (ClassCastException e) {
-            return createDefault();
-        }
-    }
-
-    NBT convertToNbt(T value) {
-        return writeFunction.apply(value);
-    }
-
     public static @NotNull Tag<Byte> Byte(@NotNull String key) {
-        return tag(key, NBTByte.class, NBTByte::getValue, NBT::Byte);
+        return tag(key, NBTByte::getValue, NBT::Byte);
     }
 
     public static @NotNull Tag<Short> Short(@NotNull String key) {
-        return tag(key, NBTShort.class, NBTShort::getValue, NBT::Short);
+        return tag(key, NBTShort::getValue, NBT::Short);
     }
 
     public static @NotNull Tag<Integer> Integer(@NotNull String key) {
-        return tag(key, NBTInt.class, NBTInt::getValue, NBT::Int);
+        return tag(key, NBTInt::getValue, NBT::Int);
     }
 
     public static @NotNull Tag<Long> Long(@NotNull String key) {
-        return tag(key, NBTLong.class, NBTLong::getValue, NBT::Long);
+        return tag(key, NBTLong::getValue, NBT::Long);
     }
 
     public static @NotNull Tag<Float> Float(@NotNull String key) {
-        return tag(key, NBTFloat.class, NBTFloat::getValue, NBT::Float);
+        return tag(key, NBTFloat::getValue, NBT::Float);
     }
 
     public static @NotNull Tag<Double> Double(@NotNull String key) {
-        return tag(key, NBTDouble.class, NBTDouble::getValue, NBT::Double);
+        return tag(key, NBTDouble::getValue, NBT::Double);
     }
 
     public static @NotNull Tag<String> String(@NotNull String key) {
-        return tag(key, NBTString.class, NBTString::getValue, NBT::String);
+        return tag(key, NBTString::getValue, NBT::String);
     }
 
     public static <T extends NBT> @NotNull Tag<T> NBT(@NotNull String key) {
-        //noinspection unchecked
-        return tag(key, NBT.class, nbt -> (T) nbt, t -> t);
+        return Tag.<T, T>tag(key, nbt -> nbt, t -> t);
     }
 
     /**
@@ -175,8 +157,8 @@ public class Tag<T> {
      * @return the created tag
      */
     public static <T> @NotNull Tag<T> Structure(@NotNull String key, @NotNull TagSerializer<T> serializer) {
-        return tag(key, NBTCompound.class,
-                nbt -> serializer.read(TagHandler.fromCompound(nbt)),
+        return tag(key,
+                (NBTCompound compound) -> serializer.read(TagHandler.fromCompound(compound)),
                 (value) -> {
                     TagHandler handler = TagHandler.newHandler();
                     serializer.write(handler, value);
@@ -185,8 +167,8 @@ public class Tag<T> {
     }
 
     public static <T> @NotNull Tag<T> View(@NotNull TagSerializer<T> serializer) {
-        return tag("", NBTCompound.class,
-                nbt -> serializer.read(TagHandler.fromCompound(nbt)),
+        return tag("",
+                (NBTCompound compound) -> serializer.read(TagHandler.fromCompound(compound)),
                 (value) -> {
                     TagHandler handler = TagHandler.newHandler();
                     serializer.write(handler, value);
@@ -195,6 +177,6 @@ public class Tag<T> {
     }
 
     public static @NotNull Tag<ItemStack> ItemStack(@NotNull String key) {
-        return tag(key, NBTCompound.class, ItemStack::fromItemNBT, ItemStack::toItemNBT);
+        return tag(key, ItemStack::fromItemNBT, ItemStack::toItemNBT);
     }
 }
