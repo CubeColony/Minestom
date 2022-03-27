@@ -9,8 +9,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * Represents a key to retrieve or change a value.
@@ -23,28 +25,43 @@ import java.util.function.Supplier;
 public class Tag<T> {
     private static final IndexMap<String> INDEX_MAP = new IndexMap<>();
 
+    record PathEntry(String name, int index) {
+    }
+
+    final int index;
     private final String key;
     final Function<NBT, T> readFunction;
     final Function<T, NBT> writeFunction;
     private final Supplier<T> defaultValue;
 
-    final int index;
+    final Function<?, ?> originalRead;
+    // Optional properties
+    final PathEntry[] path;
+    final UnaryOperator<T> copy;
+    final int listScope;
 
-    protected Tag(@NotNull String key,
-                  @NotNull Function<NBT, T> readFunction,
-                  @NotNull Function<T, NBT> writeFunction,
-                  @Nullable Supplier<T> defaultValue) {
+    Tag(int index, String key,
+        Function<?, ?> originalRead,
+        Function<NBT, T> readFunction, Function<T, NBT> writeFunction,
+        Supplier<T> defaultValue, PathEntry[] path, UnaryOperator<T> copy, int listScope) {
+        assert index == INDEX_MAP.get(key);
+        this.index = index;
         this.key = key;
+        this.originalRead = originalRead;
         this.readFunction = readFunction;
         this.writeFunction = writeFunction;
         this.defaultValue = defaultValue;
-        this.index = INDEX_MAP.get(key);
+        this.path = path;
+        this.copy = copy;
+        this.listScope = listScope;
     }
 
     static <T, N extends NBT> Tag<T> tag(@NotNull String key,
                                          @NotNull Function<N, T> readFunction,
                                          @NotNull Function<T, N> writeFunction) {
-        return new Tag<>(key, (Function<NBT, T>) readFunction, (Function<T, NBT>) writeFunction, null);
+        return new Tag<>(INDEX_MAP.get(key), key, readFunction,
+                (Function<NBT, T>) readFunction, (Function<T, NBT>) writeFunction,
+                null, null, null, 0);
     }
 
     /**
@@ -58,7 +75,7 @@ public class Tag<T> {
 
     @Contract(value = "_ -> new", pure = true)
     public Tag<T> defaultValue(@NotNull Supplier<T> defaultValue) {
-        return new Tag<>(key, readFunction, writeFunction, defaultValue);
+        return new Tag<>(index, key, originalRead, readFunction, writeFunction, defaultValue, path, copy, listScope);
     }
 
     @Contract(value = "_ -> new", pure = true)
@@ -69,7 +86,8 @@ public class Tag<T> {
     @Contract(value = "_, _ -> new", pure = true)
     public <R> Tag<R> map(@NotNull Function<T, R> readMap,
                           @NotNull Function<R, T> writeMap) {
-        return new Tag<>(key,
+        return new Tag<>(index, key,
+                readMap,
                 // Read
                 readFunction.andThen(t -> {
                     if (t == null) return null;
@@ -78,7 +96,70 @@ public class Tag<T> {
                 // Write
                 writeMap.andThen(writeFunction),
                 // Default value
-                () -> readMap.apply(createDefault()));
+                () -> readMap.apply(createDefault()),
+                path, null, listScope);
+    }
+
+    @ApiStatus.Experimental
+    @Contract(value = "-> new", pure = true)
+    public Tag<List<T>> list() {
+        return new Tag<>(index, key, originalRead,
+                read -> {
+                    var list = (NBTList<?>) read;
+                    final int size = list.getSize();
+                    if (size == 0)
+                        return List.of();
+                    T[] array = (T[]) new Object[size];
+                    for (int i = 0; i < size; i++) {
+                        array[i] = readFunction.apply(list.get(i));
+                    }
+                    return List.of(array);
+                },
+                write -> {
+                    final int size = write.size();
+                    if (size == 0)
+                        return new NBTList<>(NBTType.TAG_String); // String is the default type for lists
+                    NBTType<NBT> type = null;
+                    NBT[] array = new NBT[size];
+                    for (int i = 0; i < size; i++) {
+                        final NBT nbt = writeFunction.apply(write.get(i));
+                        if (type == null) {
+                            type = (NBTType<NBT>) nbt.getID();
+                        } else if (type != nbt.getID()) {
+                            throw new IllegalArgumentException("All elements of the list must have the same type");
+                        }
+                        array[i] = nbt;
+                    }
+                    return NBT.List(type, List.of(array));
+                }, null, path,
+                copy != null ? ts -> {
+                    final int size = ts.size();
+                    T[] array = (T[]) new Object[size];
+                    boolean shallowCopy = true;
+                    for (int i = 0; i < size; i++) {
+                        final T t = ts.get(i);
+                        final T copy = this.copy.apply(t);
+                        if (shallowCopy && copy != t) shallowCopy = false;
+                        array[i] = copy;
+                    }
+                    return shallowCopy ? List.copyOf(ts) : List.of(array);
+                } : List::copyOf, listScope + 1);
+    }
+
+    @ApiStatus.Experimental
+    @Contract(value = "_ -> new", pure = true)
+    public Tag<T> path(@NotNull String @Nullable ... path) {
+        if (path == null || path.length == 0) {
+            return new Tag<>(index, key, originalRead,
+                    readFunction, writeFunction, defaultValue, null, copy, listScope);
+        }
+        PathEntry[] entries = new PathEntry[path.length];
+        for (int i = 0; i < path.length; i++) {
+            var name = path[i];
+            entries[i] = new PathEntry(name, INDEX_MAP.get(name));
+        }
+        return new Tag<>(index, key, originalRead,
+                readFunction, writeFunction, defaultValue, entries, copy, listScope);
     }
 
     public @Nullable T read(@NotNull NBTCompoundLike nbt) {
@@ -114,6 +195,12 @@ public class Tag<T> {
     public void writeUnsafe(@NotNull MutableNBTCompound nbtCompound, @Nullable Object value) {
         //noinspection unchecked
         write(nbtCompound, (T) value);
+    }
+
+    final boolean shareValue(@NotNull Tag<?> other) {
+        // Verify if these 2 tags can share the same cached value
+        // Key/Default value/Path are ignored
+        return this == other || (this.originalRead == other.originalRead && this.listScope == other.listScope);
     }
 
     public static @NotNull Tag<Byte> Byte(@NotNull String key) {
