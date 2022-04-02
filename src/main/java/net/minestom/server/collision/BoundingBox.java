@@ -11,8 +11,12 @@ import org.jetbrains.annotations.NotNull;
  * See https://wiki.vg/Entity_metadata#Mobs_2
  */
 public final class BoundingBox implements Shape {
+
+    final static BoundingBox ZERO = new BoundingBox(0, 0, 0);
+
     private final double width, height, depth;
     private final Point offset;
+    private Point relativeEnd;
 
     BoundingBox(double width, double height, double depth, Point offset) {
         this.width = width;
@@ -73,7 +77,9 @@ public final class BoundingBox implements Shape {
 
     @Override
     public @NotNull Point relativeEnd() {
-        return offset.add(width, height, depth);
+        Point relativeEnd = this.relativeEnd;
+        if (relativeEnd == null) this.relativeEnd = relativeEnd = offset.add(width, height, depth);
+        return relativeEnd;
     }
 
     @Override
