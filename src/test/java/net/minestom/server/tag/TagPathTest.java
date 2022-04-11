@@ -28,6 +28,12 @@ public class TagPathTest {
     }
 
     @Test
+    public void invalidPath() {
+        assertThrows(IllegalArgumentException.class, () -> Tag.Integer("number").path(""));
+        assertThrows(IllegalArgumentException.class, () -> Tag.Integer("number").path("path", null));
+    }
+
+    @Test
     public void emptyRemoval() {
         var handler = TagHandler.newHandler();
         var tag = Tag.Integer("number").path("display");
@@ -127,7 +133,14 @@ public class TagPathTest {
                 }
                 """, handler.asCompound());
 
-        assertThrows(IllegalStateException.class, () -> handler.setTag(tag1, 5));
+        handler.setTag(tag1, 2);
+        assertEqualsSNBT("""
+                {
+                  "key": {
+                    "value":2
+                  }
+                }
+                """, handler.asCompound());
     }
 
     @Test
@@ -136,7 +149,7 @@ public class TagPathTest {
         var tag = Tag.Integer("key");
         var path = Tag.Integer("value").path("key");
         handler.setTag(path, 5);
-        assertThrows(IllegalStateException.class, () -> handler.getTag(tag));
+        assertNull(handler.getTag(tag));
     }
 
     @Test
@@ -223,8 +236,8 @@ public class TagPathTest {
             }
 
             @Override
-            public void write(@NotNull TagWritable writer, @Nullable Entry value) {
-                writer.setTag(VALUE_TAG, value != null ? value.value : null);
+            public void write(@NotNull TagWritable writer, @NotNull Entry value) {
+                writer.setTag(VALUE_TAG, value.value);
             }
         });
 
@@ -248,8 +261,16 @@ public class TagPathTest {
                 }
                 """, handler.asCompound());
 
-        // Cannot enter a structure from a path tag
-        assertThrows(IllegalStateException.class, () -> handler.setTag(tag.path("struct"), 5));
+        handler.setTag(tag.path("struct"), 2);
+        assertEqualsSNBT("""
+                {
+                  value:5,
+                  "struct": {
+                    "value":2
+                  }
+                }
+                """, handler.asCompound());
+        assertEquals(new Entry(2), handler.getTag(struct));
     }
 
     @Test
@@ -263,6 +284,15 @@ public class TagPathTest {
                   "key":5
                 }
                 """, handler.asCompound());
-        assertThrows(IllegalStateException.class, () -> handler.setTag(path, 5));
+        handler.setTag(path, 2);
+        assertEqualsSNBT("""
+                {
+                  "key": {
+                    "second": {
+                      "value":2
+                      }
+                    }
+                }
+                """, handler.asCompound());
     }
 }
