@@ -3,12 +3,12 @@ metadata.format.version = "1.1"
 [versions]
 
 # Important dependencies
-adventure = "4.9.3"
+adventure = "4.10.1"
 kotlin = "1.6.10"
 hydrazine = "1.7.2"
 dependencyGetter = "v1.0.1"
 minestomData = "895581d464"
-hephaistos = "2.4.2"
+hephaistos = "2.4.4"
 jetbrainsAnnotations = "23.0.0"
 
 # Terminal / Logging
