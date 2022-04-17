@@ -1,5 +1,6 @@
 package net.minestom.server.tag;
 
+import net.kyori.adventure.text.Component;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.collection.IndexMap;
 import org.jetbrains.annotations.ApiStatus;
@@ -15,6 +16,7 @@ import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -95,8 +97,6 @@ public class Tag<T> {
     @Contract(value = "_, _ -> new", pure = true)
     public <R> Tag<R> map(@NotNull Function<T, R> readMap,
                           @NotNull Function<R, T> writeMap) {
-        if (entry == Serializers.NBT_ENTRY)
-            throw new IllegalArgumentException("Cannot create a list from a NBT entry");
         var entry = this.entry;
         final Function<NBT, R> readFunction = entry.read().andThen(t -> {
             if (t == null) return null;
@@ -113,8 +113,6 @@ public class Tag<T> {
     @ApiStatus.Experimental
     @Contract(value = "-> new", pure = true)
     public Tag<List<T>> list() {
-        if (entry == Serializers.NBT_ENTRY)
-            throw new IllegalArgumentException("Cannot create a list from a NBT entry");
         var entry = this.entry;
         var readFunction = entry.read();
         var writeFunction = entry.write();
@@ -219,7 +217,7 @@ public class Tag<T> {
     }
 
     final T createDefault() {
-        final var supplier = defaultValue;
+        final Supplier<T> supplier = defaultValue;
         return supplier != null ? supplier.get() : null;
     }
 
@@ -273,8 +271,17 @@ public class Tag<T> {
         return tag(key, Serializers.STRING);
     }
 
+    @ApiStatus.Experimental
+    public static @NotNull Tag<UUID> UUID(@NotNull String key) {
+        return tag(key, Serializers.UUID);
+    }
+
     public static @NotNull Tag<ItemStack> ItemStack(@NotNull String key) {
         return tag(key, Serializers.ITEM);
+    }
+
+    public static @NotNull Tag<Component> Component(@NotNull String key) {
+        return tag(key, Serializers.COMPONENT);
     }
 
     /**
