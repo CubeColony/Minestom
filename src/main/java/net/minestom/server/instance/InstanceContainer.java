@@ -338,7 +338,6 @@ public class InstanceContainer extends Instance {
                     MinecraftServer.getExceptionManager().handleException(e);
                 } finally {
                     // End generation
-                    chunk.sendChunk();
                     refreshLastBlockChangeTime();
                     resultFuture.complete(chunk);
                 }
