@@ -1,5 +1,6 @@
 package net.minestom.server.registry;
 
+import com.google.gson.JsonObject;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.stream.JsonReader;
 import net.minestom.server.MinecraftServer;
@@ -276,6 +277,29 @@ public final class Registry {
         public Properties custom() {
             return custom;
         }
+
+        @Override
+        public String toString() {
+            return "BlockEntry{" +
+                    "namespace=" + namespace +
+                    ", id=" + id +
+                    ", stateId=" + stateId +
+                    ", translationKey='" + translationKey + '\'' +
+                    ", hardness=" + hardness +
+                    ", explosionResistance=" + explosionResistance +
+                    ", friction=" + friction +
+                    ", speedFactor=" + speedFactor +
+                    ", jumpFactor=" + jumpFactor +
+                    ", air=" + air +
+                    ", solid=" + solid +
+                    ", liquid=" + liquid +
+                    ", blockEntity='" + blockEntity + '\'' +
+                    ", blockEntityId=" + blockEntityId +
+                    ", materialSupplier=" + materialSupplier.get().name() +
+                    ", shape=" + shape +
+                    ", custom=" + (custom == null ? "null" : custom.toStr()) +
+                    '}';
+        }
     }
 
     public static final class MaterialEntry implements Entry {
@@ -356,6 +380,21 @@ public final class Registry {
         @Override
         public Properties custom() {
             return custom;
+        }
+
+        @Override
+        public String toString() {
+            return "MaterialEntry{" +
+                    "namespace=" + namespace +
+                    ", id=" + id +
+                    ", translationKey='" + translationKey + '\'' +
+                    ", maxStackSize=" + maxStackSize +
+                    ", maxDamage=" + maxDamage +
+                    ", isFood=" + isFood +
+                    ", blockSupplier=" + blockSupplier +
+                    ", equipmentSlot=" + equipmentSlot +
+                    ", custom=" + custom +
+                    '}';
         }
     }
 
@@ -543,6 +582,14 @@ public final class Registry {
 
         default int size() {
             return asMap().size();
+        }
+
+        default String toStr() {
+            final JsonObject object = new JsonObject();
+            for (Map.Entry<String, Object> entry : this.asMap().entrySet()) {
+                object.addProperty(entry.getKey(), entry.getValue().toString());
+            }
+            return object.getAsString();
         }
     }
 }
