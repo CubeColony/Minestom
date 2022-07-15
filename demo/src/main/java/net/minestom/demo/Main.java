@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.demo.commands.*;
+import net.minestom.demo.git.GitTest;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.event.server.ServerListPingEvent;
@@ -99,6 +100,8 @@ public class Main {
         PlayerInit.init();
 
         OptifineSupport.enable();
+
+        new GitTest();
 
         //VelocityProxy.enable("rBeJJ79W4MVU");
         //BungeeCordProxy.enable();

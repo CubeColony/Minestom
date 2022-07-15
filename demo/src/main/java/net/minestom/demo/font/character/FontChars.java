@@ -1,0 +1,110 @@
+package net.minestom.demo.font.character;
+
+import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
+import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
+import net.minestom.demo.font.key.FontKey;
+
+/**
+ * @author LBuke (Teddeh)
+ */
+interface FontChars {
+    Char2ObjectMap<FontChar> REGISTRY = new Char2ObjectOpenHashMap<>();
+
+    FontChar A = new FontCharImpl('A', 5, FontKey.DEFAULT);
+    FontChar a = new FontCharImpl('a', 5, FontKey.DEFAULT);
+    FontChar B = new FontCharImpl('B', 5, FontKey.DEFAULT);
+    FontChar b = new FontCharImpl('b', 5, FontKey.DEFAULT);
+    FontChar C = new FontCharImpl('C', 5, FontKey.DEFAULT);
+    FontChar c = new FontCharImpl('c', 5, FontKey.DEFAULT);
+    FontChar D = new FontCharImpl('D', 5, FontKey.DEFAULT);
+    FontChar d = new FontCharImpl('d', 5, FontKey.DEFAULT);
+    FontChar E = new FontCharImpl('E', 5, FontKey.DEFAULT);
+    FontChar e = new FontCharImpl('e', 5, FontKey.DEFAULT);
+    FontChar F = new FontCharImpl('F', 5, FontKey.DEFAULT);
+    FontChar f = new FontCharImpl('f', 4, FontKey.DEFAULT);
+    FontChar G = new FontCharImpl('G', 5, FontKey.DEFAULT);
+    FontChar g = new FontCharImpl('g', 5, FontKey.DEFAULT);
+    FontChar H = new FontCharImpl('H', 5, FontKey.DEFAULT);
+    FontChar h = new FontCharImpl('h', 5, FontKey.DEFAULT);
+    FontChar I = new FontCharImpl('I', 3, FontKey.DEFAULT);
+    FontChar i = new FontCharImpl('i', 1, FontKey.DEFAULT);
+    FontChar J = new FontCharImpl('J', 5, FontKey.DEFAULT);
+    FontChar j = new FontCharImpl('j', 5, FontKey.DEFAULT);
+    FontChar K = new FontCharImpl('K', 5, FontKey.DEFAULT);
+    FontChar k = new FontCharImpl('k', 4, FontKey.DEFAULT);
+    FontChar L = new FontCharImpl('L', 5, FontKey.DEFAULT);
+    FontChar l = new FontCharImpl('l', 2, FontKey.DEFAULT);
+    FontChar M = new FontCharImpl('M', 5, FontKey.DEFAULT);
+    FontChar m = new FontCharImpl('m', 5, FontKey.DEFAULT);
+    FontChar N = new FontCharImpl('N', 5, FontKey.DEFAULT);
+    FontChar n = new FontCharImpl('n', 5, FontKey.DEFAULT);
+    FontChar O = new FontCharImpl('O', 5, FontKey.DEFAULT);
+    FontChar o = new FontCharImpl('o', 5, FontKey.DEFAULT);
+    FontChar P = new FontCharImpl('P', 5, FontKey.DEFAULT);
+    FontChar p = new FontCharImpl('p', 5, FontKey.DEFAULT);
+    FontChar Q = new FontCharImpl('Q', 5, FontKey.DEFAULT);
+    FontChar q = new FontCharImpl('q', 5, FontKey.DEFAULT);
+    FontChar R = new FontCharImpl('R', 5, FontKey.DEFAULT);
+    FontChar r = new FontCharImpl('r', 5, FontKey.DEFAULT);
+    FontChar S = new FontCharImpl('S', 5, FontKey.DEFAULT);
+    FontChar s = new FontCharImpl('s', 5, FontKey.DEFAULT);
+    FontChar T = new FontCharImpl('T', 5, FontKey.DEFAULT);
+    FontChar t = new FontCharImpl('t', 3, FontKey.DEFAULT);
+    FontChar U = new FontCharImpl('U', 5, FontKey.DEFAULT);
+    FontChar u = new FontCharImpl('u', 5, FontKey.DEFAULT);
+    FontChar V = new FontCharImpl('V', 5, FontKey.DEFAULT);
+    FontChar v = new FontCharImpl('v', 5, FontKey.DEFAULT);
+    FontChar W = new FontCharImpl('W', 5, FontKey.DEFAULT);
+    FontChar w = new FontCharImpl('w', 5, FontKey.DEFAULT);
+    FontChar X = new FontCharImpl('X', 5, FontKey.DEFAULT);
+    FontChar x = new FontCharImpl('x', 5, FontKey.DEFAULT);
+    FontChar Y = new FontCharImpl('Y', 5, FontKey.DEFAULT);
+    FontChar y = new FontCharImpl('y', 5, FontKey.DEFAULT);
+    FontChar Z = new FontCharImpl('Z', 5, FontKey.DEFAULT);
+    FontChar z = new FontCharImpl('z', 5, FontKey.DEFAULT);
+
+    FontChar NUM_0 = new FontCharImpl('0', 5, FontKey.DEFAULT);
+    FontChar NUM_1 = new FontCharImpl('1', 5, FontKey.DEFAULT);
+    FontChar NUM_2 = new FontCharImpl('2', 5, FontKey.DEFAULT);
+    FontChar NUM_3 = new FontCharImpl('3', 5, FontKey.DEFAULT);
+    FontChar NUM_4 = new FontCharImpl('4', 5, FontKey.DEFAULT);
+    FontChar NUM_5 = new FontCharImpl('5', 5, FontKey.DEFAULT);
+    FontChar NUM_6 = new FontCharImpl('6', 5, FontKey.DEFAULT);
+    FontChar NUM_7 = new FontCharImpl('7', 5, FontKey.DEFAULT);
+    FontChar NUM_8 = new FontCharImpl('8', 5, FontKey.DEFAULT);
+    FontChar NUM_9 = new FontCharImpl('9', 5, FontKey.DEFAULT);
+
+    FontChar EXCLAMATION_POINT = new FontCharImpl('!', 1, FontKey.DEFAULT);
+    FontChar AT_SYMBOL = new FontCharImpl('@', 6, FontKey.DEFAULT);
+    FontChar NUM_SIGN = new FontCharImpl('#', 5, FontKey.DEFAULT);
+    FontChar DOLLAR_SIGN = new FontCharImpl('$', 5, FontKey.DEFAULT);
+    FontChar PERCENT = new FontCharImpl('%', 5, FontKey.DEFAULT);
+    FontChar UP_ARROW = new FontCharImpl('^', 5, FontKey.DEFAULT);
+    FontChar AMPERSAND = new FontCharImpl('&', 5, FontKey.DEFAULT);
+    FontChar ASTERISK = new FontCharImpl('*', 3, FontKey.DEFAULT);
+    FontChar LEFT_PARENTHESIS = new FontCharImpl('(', 3, FontKey.DEFAULT);
+    FontChar RIGHT_PERENTHESIS = new FontCharImpl(')', 3, FontKey.DEFAULT);
+    FontChar MINUS = new FontCharImpl('-', 5, FontKey.DEFAULT);
+    FontChar UNDERSCORE = new FontCharImpl('_', 5, FontKey.DEFAULT);
+    FontChar PLUS_SIGN = new FontCharImpl('+', 5, FontKey.DEFAULT);
+    FontChar EQUALS_SIGN = new FontCharImpl('=', 5, FontKey.DEFAULT);
+    FontChar LEFT_CURL_BRACE = new FontCharImpl('{', 3, FontKey.DEFAULT);
+    FontChar RIGHT_CURL_BRACE = new FontCharImpl('}', 3, FontKey.DEFAULT);
+    FontChar LEFT_BRACKET = new FontCharImpl('[', 3, FontKey.DEFAULT);
+    FontChar RIGHT_BRACKET = new FontCharImpl(']', 3, FontKey.DEFAULT);
+    FontChar COLON = new FontCharImpl(':', 1, FontKey.DEFAULT);
+    FontChar SEMI_COLON = new FontCharImpl(';', 1, FontKey.DEFAULT);
+    FontChar DOUBLE_QUOTE = new FontCharImpl('"', 3, FontKey.DEFAULT);
+    FontChar SINGLE_QUOTE = new FontCharImpl('\'', 1, FontKey.DEFAULT);
+    FontChar LEFT_ARROW = new FontCharImpl('<', 4, FontKey.DEFAULT);
+    FontChar RIGHT_ARROW = new FontCharImpl('>', 4, FontKey.DEFAULT);
+    FontChar QUESTION_MARK = new FontCharImpl('?', 5, FontKey.DEFAULT);
+    FontChar SLASH = new FontCharImpl('/', 5, FontKey.DEFAULT);
+    FontChar BACK_SLASH = new FontCharImpl('\\', 5, FontKey.DEFAULT);
+    FontChar LINE = new FontCharImpl('|', 1, FontKey.DEFAULT);
+    FontChar TILDE = new FontCharImpl('~', 5, FontKey.DEFAULT);
+    FontChar TICK = new FontCharImpl('`', 2, FontKey.DEFAULT);
+    FontChar PERIOD = new FontCharImpl('.', 1, FontKey.DEFAULT);
+    FontChar COMMA = new FontCharImpl(',', 1, FontKey.DEFAULT);
+    FontChar SPACE = new FontCharImpl(' ', 3, FontKey.DEFAULT);
+}

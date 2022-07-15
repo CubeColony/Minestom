@@ -1,5 +1,6 @@
 package net.minestom.demo;
 
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.Audiences;
@@ -110,6 +111,38 @@ public class PlayerInit {
                         })
                         .build();
                 player.getInventory().addItemStack(bundle);
+
+                player.sendPlayerListHeaderAndFooter(
+                        Component.text("口\uE000回\uE000品\uE000唱").font(Key.key("custom:special"))
+                                .append(Component.newline())
+                                .append(Component.newline())
+                                .append(Component.newline())
+                                .append(Component.newline())
+                                .append(Component.newline())
+                                .append(Component.newline()),
+
+                        Component.text("abc")
+                                .append(Component.newline())
+                                .append(Component.text("\uE000").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE001").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE002").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE003").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE004").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE005").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE006").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE007").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE008").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                                .append(Component.newline())
+                                .append(Component.text("\uE009").font(Key.key("custom:special")).append(Component.text("abc").font(Key.key("default"))))
+                );
             })
             .addListener(PlayerPacketOutEvent.class, event -> {
                 //System.out.println("out " + event.getPacket().getClass().getSimpleName());
@@ -142,23 +175,23 @@ public class PlayerInit {
 
         eventHandler.addListener(ServerTickMonitorEvent.class, event -> LAST_TICK.set(event.getTickMonitor()));
 
-        BenchmarkManager benchmarkManager = MinecraftServer.getBenchmarkManager();
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
-            Collection<Player> players = MinecraftServer.getConnectionManager().getOnlinePlayers();
-            if (players.isEmpty())
-                return;
-
-            long ramUsage = benchmarkManager.getUsedMemory();
-            ramUsage /= 1e6; // bytes to MB
-
-            TickMonitor tickMonitor = LAST_TICK.get();
-            final Component header = Component.text("RAM USAGE: " + ramUsage + " MB")
-                    .append(Component.newline())
-                    .append(Component.text("TICK TIME: " + MathUtils.round(tickMonitor.getTickTime(), 2) + "ms"))
-                    .append(Component.newline())
-                    .append(Component.text("ACQ TIME: " + MathUtils.round(tickMonitor.getAcquisitionTime(), 2) + "ms"));
-            final Component footer = benchmarkManager.getCpuMonitoringMessage();
-            Audiences.players().sendPlayerListHeaderAndFooter(header, footer);
-        }).repeat(10, TimeUnit.SERVER_TICK).schedule();
+//        BenchmarkManager benchmarkManager = MinecraftServer.getBenchmarkManager();
+//        MinecraftServer.getSchedulerManager().buildTask(() -> {
+//            Collection<Player> players = MinecraftServer.getConnectionManager().getOnlinePlayers();
+//            if (players.isEmpty())
+//                return;
+//
+//            long ramUsage = benchmarkManager.getUsedMemory();
+//            ramUsage /= 1e6; // bytes to MB
+//
+//            TickMonitor tickMonitor = LAST_TICK.get();
+//            final Component header = Component.text("RAM USAGE: " + ramUsage + " MB")
+//                    .append(Component.newline())
+//                    .append(Component.text("TICK TIME: " + MathUtils.round(tickMonitor.getTickTime(), 2) + "ms"))
+//                    .append(Component.newline())
+//                    .append(Component.text("ACQ TIME: " + MathUtils.round(tickMonitor.getAcquisitionTime(), 2) + "ms"));
+//            final Component footer = benchmarkManager.getCpuMonitoringMessage();
+//            Audiences.players().sendPlayerListHeaderAndFooter(header, footer);
+//        }).repeat(10, TimeUnit.SERVER_TICK).schedule();
     }
 }

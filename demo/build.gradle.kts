@@ -17,7 +17,11 @@ application {
 dependencies {
     implementation(rootProject)
     implementation(libs.jNoise)
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r")
 }
+//repositories {
+//    mavenCentral()
+//}
 
 tasks.withType<ShadowJar> {
     archiveFileName.set("minestom-demo.jar")
