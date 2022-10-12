@@ -1,7 +1,7 @@
 plugins {
     `java-library`
-    id("minestom.publishing-conventions")
     id("minestom.native-conventions")
+    `maven-publish`
 }
 
 allprojects {
@@ -84,3 +84,31 @@ dependencies {
     api("io.github.jglrxavpok.hephaistos:common:${libs.versions.hephaistos.get()}")
     api("io.github.jglrxavpok.hephaistos:gson:${libs.versions.hephaistos.get()}")
 }
+
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            pom {
+                group = "com.cubecolony"
+                artifactId = "cubestom"
+                version = "1.0"
+            }
+
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            val releasesRepoUrl = uri("https://maven.cubecolony.net/repository/maven-releases/")
+            val snapshotsRepoUrl = uri("https://maven.cubecolony.net/repository/maven-snapshots/")
+
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+            credentials {
+                username = project.properties["nexusUsername"] as String
+                password = project.properties["nexusPassword"] as String
+            }
+        }
+    }
+}
+

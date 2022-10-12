@@ -4,6 +4,7 @@ enableFeaturePreview("VERSION_CATALOGS")
 dependencyResolutionManagement {
     repositories {
         maven("https://jitpack.io")
+        maven("https://maven.cubecolony.net/repository/maven-releases/")
         mavenCentral()
     }
 }
@@ -16,7 +17,7 @@ pluginManagement {
     includeBuild("build-logic")
 }
 
-rootProject.name = "Minestom"
+rootProject.name = "Cubestom"
 include("code-generators")
 include("jmh-benchmarks")
 include("jcstress-tests")
