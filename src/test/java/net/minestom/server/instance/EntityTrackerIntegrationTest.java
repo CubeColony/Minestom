@@ -84,7 +84,7 @@ public class EntityTrackerIntegrationTest {
     }
 
     private Player createTestPlayer() {
-        return new Player(UUID.randomUUID(), "TestPlayer", new PlayerConnection() {
+        return new Player( UUID.randomUUID(), "TestPlayer", new PlayerConnection() {
             @Override
             public void sendPacket(@NotNull SendablePacket packet) {
                 // nothing

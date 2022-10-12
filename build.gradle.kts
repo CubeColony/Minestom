@@ -2,6 +2,7 @@ plugins {
     `java-library`
     id("minestom.native-conventions")
     `maven-publish`
+    id("io.ebean") version "13.9.4"
 }
 
 allprojects {

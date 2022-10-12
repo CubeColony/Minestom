@@ -201,6 +201,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
     private Identity identity;
     private final Pointers pointers;
 
+
     public Player(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         super(EntityType.PLAYER, uuid);
         this.username = username;

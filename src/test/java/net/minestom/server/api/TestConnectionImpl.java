@@ -35,7 +35,7 @@ final class TestConnectionImpl implements TestConnection {
 
     @Override
     public @NotNull CompletableFuture<Player> connect(@NotNull Instance instance, @NotNull Pos pos) {
-        Player player = new Player(UUID.randomUUID(), "RandName", playerConnection);
+        Player player = new Player( UUID.randomUUID(), "RandName", playerConnection);
         player.eventNode().addListener(PlayerLoginEvent.class, event -> {
             event.setSpawningInstance(instance);
             event.getPlayer().setRespawnPoint(pos);
