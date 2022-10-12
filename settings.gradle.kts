@@ -1,10 +1,27 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 enableFeaturePreview("VERSION_CATALOGS")
 
+
 dependencyResolutionManagement {
+    val nexusUsername: String by settings
+    val nexusPassword: String by settings
+
     repositories {
         maven("https://jitpack.io")
-        maven("https://maven.cubecolony.net/repository/maven-releases/")
+        maven {
+            url = uri("https://maven.cubecolony.net/repository/maven-releases/")
+            credentials {
+                username = nexusUsername
+                password = nexusPassword
+            }
+        }
+        maven {
+            url = uri("https://maven.cubecolony.net/repository/maven-snapshots/")
+            credentials {
+                username = nexusUsername
+                password = nexusPassword
+            }
+        }
         mavenCentral()
     }
 }

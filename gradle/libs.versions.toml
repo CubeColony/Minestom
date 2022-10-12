@@ -15,6 +15,9 @@ jetbrainsAnnotations = "23.0.0"
 tinylog = "2.4.1"
 jline = "3.21.0"
 
+# CubeColony
+ccapi = "1.0-SNAPSHOT"
+
 # Performance / Data Structures
 caffeine = "3.0.6"
 fastutil = "8.5.8"
@@ -51,6 +54,9 @@ adventure-serializer-plain = { group = "net.kyori", name = "adventure-text-seria
 # Kotlin
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
+
+# CubeColony
+ccapi = { group = "com.cubecolony", name = "api", version.ref = "ccapi" }
 
 # Miscellaneous
 hydrazine = { group = "com.github.MadMartian", name = "hydrazine-path-finding", version.ref = "hydrazine" }
@@ -103,3 +109,4 @@ flare = ["flare", "flare-fastutil"]
 adventure = ["adventure-api", "adventure-serializer-gson", "adventure-serializer-legacy", "adventure-serializer-plain"]
 logging = ["tinylog-api", "tinylog-impl", "tinylog-slf4j"]
 terminal = ["jline", "jline-jansi"]
+cubeColony = ["ccapi"]

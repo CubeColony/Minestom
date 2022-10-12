@@ -77,6 +77,9 @@ dependencies {
     // Extension Management System dependency handler.
     api(libs.dependencyGetter)
 
+    // CubeColony
+    implementation(libs.bundles.cubeColony)
+
     // Minestom Data (From MinestomDataGenerator)
     implementation(libs.minestomData)
 
