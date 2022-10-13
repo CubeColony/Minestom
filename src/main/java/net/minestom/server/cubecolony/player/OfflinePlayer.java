@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
-import java.awt.*;
 import java.util.*;
 
 /**
@@ -47,12 +46,12 @@ public class OfflinePlayer implements CCPlayer {
     private long playTime;
     @Column(name = "last_login")
     private Date lastLogin;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private PlayerPreferences preferences;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private BankAccount bankAccount;
-    @OneToOne
-    private DiscordAccount discordAccount;
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = DiscordAccount.class)
+    private CCDiscordAccount discordAccount;
     @OneToOne(targetEntity = PlayerAccount.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CCPlayerAccount account;
     @OneToOne(targetEntity = Rank.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -79,7 +78,7 @@ public class OfflinePlayer implements CCPlayer {
     protected Date updatedAt;
 
 
-    public OfflinePlayer(UUID uuid, String name, Locale locale, long playTime, Date lastLogin, PlayerPreferences preferences, BankAccount bankAccount, PlayerAccount account, CCRank rank, Set<CCPurchase> purchases, Set<CCPunishment> punishments, Set<CCSession> sessions, Set<CCFriendshipRequest> friendshipRequests, Set<CCPlayer> friends) {
+    public OfflinePlayer(UUID uuid, String name, Locale locale, long playTime, Date lastLogin, PlayerPreferences preferences, BankAccount bankAccount, PlayerAccount account) {
         this.uuid = uuid;
         this.name = name;
         this.locale = locale;
@@ -89,11 +88,11 @@ public class OfflinePlayer implements CCPlayer {
         this.bankAccount = bankAccount;
         this.account = account;
         this.rank = rank;
-        this.purchases = purchases;
-        this.punishments = punishments;
-        this.sessions = sessions;
-        this.friendshipRequests = friendshipRequests;
-        this.friends = friends;
+        this.purchases = new HashSet<>();
+        this.punishments = new HashSet<>();
+        this.sessions = new HashSet<>();
+        this.friendshipRequests = new HashSet<>();
+        this.friends = new HashSet<>();
     }
 
     public OfflinePlayer() {
@@ -110,8 +109,8 @@ public class OfflinePlayer implements CCPlayer {
     }
 
     @Override
-    public @NotNull Component getName() {
-        return null; // FIXME: 12/10/2022
+    public @NotNull String getName() {
+        return name;
     }
 
     @Override
@@ -215,6 +214,11 @@ public class OfflinePlayer implements CCPlayer {
     @Override
     public @Nullable CCDiscordAccount getDiscordAccount() {
         return discordAccount;
+    }
+
+    @Override
+    public void setDiscordAccount(@Nullable CCDiscordAccount ccDiscordAccount) {
+        this.discordAccount = ccDiscordAccount;
     }
 
     @Override

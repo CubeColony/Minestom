@@ -16,7 +16,7 @@ tinylog = "2.4.1"
 jline = "3.21.0"
 
 # CubeColony
-ccapi = "1.5.2-SNAPSHOT"
+ccapi = "1.5.8-SNAPSHOT"
 ebean = "13.9.3"
 
 # Performance / Data Structures

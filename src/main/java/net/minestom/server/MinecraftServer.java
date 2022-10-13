@@ -8,6 +8,7 @@ import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.cubecolony.authentification.AuthenticationService;
+import net.minestom.server.cubecolony.economy.EconomyService;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.ExtensionManager;
@@ -218,7 +219,11 @@ public final class MinecraftServer {
     }
 
     public static @NotNull AuthenticationService getAuthenticationService() {
-        return serverProcess.getAuthenticationService();
+        return serverProcess.authentication();
+    }
+
+    public static @NotNull EconomyService getEconomyService() {
+        return serverProcess.economy();
     }
 
     public static @NotNull BossBarManager getBossBarManager() {

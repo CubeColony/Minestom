@@ -1,13 +1,15 @@
 package net.minestom.server.cubecolony.economy.game;
 
-import com.cubecolony.api.economy.game.CCBankAccount;
 import com.cubecolony.api.economy.game.CCTransaction;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -23,12 +25,10 @@ public class FinancialTransaction  implements CCTransaction {
 
     @Id
     private long id;
-    @OneToOne
-    private BankAccount account;
     @Column
     private String description;
     @Column
-    private float amount;
+    private double amount;
     @Column
     private Type type;
     @Column
@@ -40,15 +40,21 @@ public class FinancialTransaction  implements CCTransaction {
     @WhenModified
     protected Date updatedAt;
 
+    public FinancialTransaction(String description, double amount, Type type, Action action) {
+        this.description = description;
+        this.amount = amount;
+        this.type = type;
+        this.action = action;
+    }
+
+    public FinancialTransaction() {
+    }
+
     @Override
     public long getId() {
         return id;
     }
 
-    @Override
-    public @NotNull CCBankAccount getAccount() {
-        return account;
-    }
 
     @Override
     public @Nullable String getDescription() {
@@ -56,7 +62,7 @@ public class FinancialTransaction  implements CCTransaction {
     }
 
     @Override
-    public float getAmount() {
+    public double getAmount() {
         return amount;
     }
 
@@ -84,7 +90,6 @@ public class FinancialTransaction  implements CCTransaction {
     public String toString() {
         return "FinancialTransaction{" +
                 "id=" + id +
-                ", account=" + account +
                 ", description='" + description + '\'' +
                 ", amount=" + amount +
                 ", type=" + type +

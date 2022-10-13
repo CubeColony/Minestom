@@ -72,7 +72,7 @@ public class DatabaseTest {
     @Test
     @Order(4)
     void insertAndQueryBankAccount() {
-        BankAccount bankAccount = new BankAccount(new Random().nextDouble(), new HashSet<>());
+        BankAccount bankAccount = new BankAccount(new Random().nextDouble());
         database.insert(bankAccount);
 
         BankAccount found = database.find(BankAccount.class, 1);
@@ -82,7 +82,7 @@ public class DatabaseTest {
     @Test
     @Order(5)
     void insertAndQueryPlayerAccount() {
-        PlayerAccount playerAccount = new PlayerAccount(new Random().nextDouble(), new HashSet<>());
+        PlayerAccount playerAccount = new PlayerAccount(new Random().nextDouble());
         database.insert(playerAccount);
 
         PlayerAccount found = database.find(PlayerAccount.class, 1);
@@ -115,7 +115,8 @@ public class DatabaseTest {
         Assertions.assertNotNull(playerAccount);
 
         // Player
-        OfflinePlayer player = new OfflinePlayer(uuid, name, locale, playTime, lastLogin, preferences, bankAccount, playerAccount, rank, new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+        OfflinePlayer player = new OfflinePlayer(uuid, name, locale, playTime, lastLogin, preferences, bankAccount, playerAccount);
+        player.setRank(rank);
         database.insert(player);
 
         OfflinePlayer found = database.find(OfflinePlayer.class, 1);

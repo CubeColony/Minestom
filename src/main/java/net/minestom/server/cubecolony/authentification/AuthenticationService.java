@@ -110,10 +110,10 @@ public class AuthenticationService {
         PlayerPreferences preferences = new PlayerPreferences(true, true, true);
         database.insert(preferences);
 
-        BankAccount bankAccount = new BankAccount(0, new HashSet<>());
+        BankAccount bankAccount = new BankAccount(0);
         database.insert(bankAccount);
 
-        PlayerAccount account = new PlayerAccount(0, new HashSet<>());
+        PlayerAccount account = new PlayerAccount(0);
         database.insert(account);
 
         OfflinePlayer offlinePlayer = new OfflinePlayer(uuid,
@@ -123,13 +123,7 @@ public class AuthenticationService {
                 now,
                 preferences,
                 bankAccount,
-                account,
-                null,
-                new HashSet<>(),
-                new HashSet<>(),
-                new HashSet<>(),
-                new HashSet<>(),
-                new HashSet<>());
+                account);
         database.save(offlinePlayer);
 
         return offlinePlayer;

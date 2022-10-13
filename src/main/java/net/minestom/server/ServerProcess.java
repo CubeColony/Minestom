@@ -4,6 +4,7 @@ import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.cubecolony.authentification.AuthenticationService;
+import net.minestom.server.cubecolony.economy.EconomyService;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.ExtensionManager;
@@ -129,7 +130,14 @@ public interface ServerProcess extends Snapshotable {
      *
      * @return the authentication service
      */
-    @NotNull AuthenticationService getAuthenticationService();
+    @NotNull AuthenticationService authentication();
+
+    /**
+     * Gets the economy service.
+     *
+     * @return the economy service
+     */
+    @NotNull EconomyService economy();
 
     /**
      * Exposed socket server.
