@@ -1,6 +1,15 @@
 package net.minestom.server.entity;
 
+import com.cubecolony.api.economy.game.CCBankAccount;
+import com.cubecolony.api.economy.game.CCPlayerAccount;
+import com.cubecolony.api.economy.store.CCPurchase;
+import com.cubecolony.api.friends.CCFriendshipRequest;
+import com.cubecolony.api.players.CCDiscordAccount;
 import com.cubecolony.api.players.CCPlayer;
+import com.cubecolony.api.players.CCPlayerPreferences;
+import com.cubecolony.api.players.CCSession;
+import com.cubecolony.api.punishments.CCPunishment;
+import com.cubecolony.api.ranks.CCRank;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.identity.Identified;
@@ -2170,5 +2179,102 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
 
     public CCPlayer getOfflinePlayer() {
         return offlinePlayer;
+    }
+
+    /* Delegated OfflinePlayer methods */
+    public long getId() {
+        return this.offlinePlayer.getId();
+    }
+
+    public long getPlayTime() {
+        return this.offlinePlayer.getPlayTime();
+    }
+
+    public void setPlayTime(long l) {
+        this.offlinePlayer.setPlayTime(l);
+    }
+
+    @NotNull
+    public Date getLastLogin() {
+        return this.offlinePlayer.getLastLogin();
+    }
+
+    public void setLastLogin(@NotNull Date date) {
+        this.offlinePlayer.setLastLogin(date);
+    }
+
+    public @NotNull CCPlayerPreferences getPreferences() {
+        return this.offlinePlayer.getPreferences();
+    }
+
+    public @NotNull CCBankAccount getBankAccount() {
+        return this.offlinePlayer.getBankAccount();
+    }
+
+    public @NotNull CCPlayerAccount getAccount() {
+        return this.offlinePlayer.getAccount();
+    }
+
+    public @NotNull CCRank getRank() {
+        return this.offlinePlayer.getRank();
+    }
+
+    public void setRank(@NotNull CCRank ccRank) {
+        this.offlinePlayer.setRank(ccRank);
+    }
+
+    @NotNull
+    public Set<CCPurchase> getPurchases() {
+        return this.offlinePlayer.getPurchases();
+    }
+
+    @NotNull
+    public Set<CCPunishment> getPunishments() {
+        return this.offlinePlayer.getPunishments();
+    }
+
+    @NotNull
+    public Set<CCSession> getSessions() {
+        return this.offlinePlayer.getSessions();
+    }
+
+    @NotNull
+    public Set<CCFriendshipRequest> getFriendshipRequests() {
+        return this.offlinePlayer.getFriendshipRequests();
+    }
+
+    @NotNull
+    public Set<CCPlayer> getFriends() {
+        return this.offlinePlayer.getFriends();
+    }
+
+    public boolean areFriends(@NotNull CCPlayer ccPlayer) {
+        return this.offlinePlayer.areFriends(ccPlayer);
+    }
+
+    public @Nullable CCSession getCurrentSession() {
+        return this.offlinePlayer.getCurrentSession();
+    }
+
+    public @Nullable CCDiscordAccount getDiscordAccount() {
+        return this.offlinePlayer.getDiscordAccount();
+    }
+
+    public void setDiscordAccount(@Nullable CCDiscordAccount ccDiscordAccount) {
+        this.offlinePlayer.setDiscordAccount(ccDiscordAccount);
+    }
+
+    public boolean hasDiscordAccount() {
+        return this.offlinePlayer.hasDiscordAccount();
+    }
+
+    @NotNull
+    public Date getLastUpdateDate() {
+        return this.offlinePlayer.getLastUpdateDate();
+    }
+
+    @NotNull
+    public Date getCreationDate() {
+        return this.offlinePlayer.getCreationDate();
     }
 }
