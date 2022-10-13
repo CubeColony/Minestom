@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
+import net.minestom.server.cubecolony.authentification.AuthenticationService;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.GlobalEventHandler;
@@ -65,6 +66,7 @@ final class ServerProcessImpl implements ServerProcess {
     private final BossBarManager bossBar;
     private final TagManager tag;
     private final Server server;
+    private final AuthenticationService authenticationService;
 
     private final ThreadDispatcher<Chunk> dispatcher;
     private final Ticker ticker;
@@ -95,6 +97,9 @@ final class ServerProcessImpl implements ServerProcess {
 
         this.dispatcher = ThreadDispatcher.singleThread();
         this.ticker = new TickerImpl();
+
+        // Cube Colony
+        this.authenticationService = new AuthenticationService(MinecraftServer.getDatabase(), connection);
     }
 
     @Override

@@ -1,5 +1,9 @@
 package net.minestom.server;
 
+import io.ebean.Database;
+import io.ebean.DatabaseFactory;
+import io.ebean.config.DatabaseConfig;
+import io.ebean.datasource.DataSourceConfig;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
@@ -35,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Properties;
 
 /**
  * The main server class used to start the server and retrieve all the managers.
@@ -70,7 +75,11 @@ public final class MinecraftServer {
     private static String brandName = "Minestom";
     private static Difficulty difficulty = Difficulty.NORMAL;
 
+    // Cube Colony
+    private static Database database;
+
     public static MinecraftServer init() {
+        initDatabase();
         updateProcess();
         return new MinecraftServer();
     }
@@ -85,6 +94,30 @@ public final class MinecraftServer {
             throw new RuntimeException(e);
         }
         return process;
+    }
+
+    public static void initDatabase() {
+        Properties properties = new Properties();
+        // TODO: load the file from current dir
+        properties.setProperty("datasource.username", "cubecolony");
+        properties.setProperty("datasource.password", "Cub3C0l0ny");
+        properties.setProperty("datasource.url", "jdbc:mysql://172.23.0.2:3306/cubecolony");
+        properties.setProperty("datasource.driver", "com.mysql.cj.jdbc.Driver");
+        properties.setProperty("datasource.platform", "mysql");
+
+        DataSourceConfig dataSourceConfig = new DataSourceConfig();
+        dataSourceConfig.setPlatform(properties.getProperty("datasource.platform"));
+        dataSourceConfig.setDriver(properties.getProperty("datasource.driver"));
+        dataSourceConfig.setUsername(properties.getProperty("datasource.username"));
+        dataSourceConfig.setPassword(properties.getProperty("datasource.password"));
+        dataSourceConfig.setUrl(properties.getProperty("datasource.url"));
+
+
+        DatabaseConfig config = new DatabaseConfig();
+        config.setDataSourceConfig(dataSourceConfig);
+        config.setDdlRun(true);
+        config.setDdlGenerate(true);
+        MinecraftServer.database = DatabaseFactory.create(config);
     }
 
     /**
@@ -311,6 +344,10 @@ public final class MinecraftServer {
         return serverProcess.server();
     }
 
+    public static Database getDatabase() {
+        return database;
+    }
+
     /**
      * Starts the server.
      * <p>
@@ -334,4 +371,6 @@ public final class MinecraftServer {
     public static void stopCleanly() {
         serverProcess.stop();
     }
+
+
 }

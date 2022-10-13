@@ -94,7 +94,7 @@ public class EntityTrackerIntegrationTest {
             public @NotNull SocketAddress getRemoteAddress() {
                 return null;
             }
-        });
+        }, null);
     }
 
 }

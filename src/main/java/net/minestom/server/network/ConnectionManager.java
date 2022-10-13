@@ -43,7 +43,7 @@ public final class ConnectionManager {
     // The uuid provider once a player login
     private volatile UuidProvider uuidProvider = (playerConnection, username) -> UUID.randomUUID();
     // The player provider to have your own Player implementation
-    private volatile PlayerProvider playerProvider = Player::new;
+    private volatile PlayerProvider playerProvider = (uuid, username, connection) -> new Player(uuid, username, connection, null);
 
     /**
      * Gets the {@link Player} linked to a {@link PlayerConnection}.
@@ -153,7 +153,7 @@ public final class ConnectionManager {
      * @param playerProvider the new {@link PlayerProvider}, can be set to null to apply the default provider
      */
     public void setPlayerProvider(@Nullable PlayerProvider playerProvider) {
-        this.playerProvider = playerProvider != null ? playerProvider : Player::new;
+        this.playerProvider = playerProvider != null ? playerProvider : (uuid, username, connection) -> new Player(uuid, username, connection, null);
     }
 
     /**

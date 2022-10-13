@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @SuppressWarnings("ConstantConditions")
 public class CommandPacketFilteringTest {
-    private static final Player PLAYER = new Player( UUID.randomUUID(), "", null);
+    private static final Player PLAYER = new Player( UUID.randomUUID(), "", null, null);
 
     @Test
     public void singleCommandFilteredFalse() {

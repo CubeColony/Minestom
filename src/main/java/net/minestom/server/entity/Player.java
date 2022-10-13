@@ -1,5 +1,6 @@
 package net.minestom.server.entity;
 
+import com.cubecolony.api.players.CCPlayer;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.identity.Identified;
@@ -201,12 +202,16 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
     private Identity identity;
     private final Pointers pointers;
 
+    // CubeColony
+    private final CCPlayer offlinePlayer;
 
-    public Player(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
+
+    public Player(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection, @NotNull CCPlayer ccPlayer) {
         super(EntityType.PLAYER, uuid);
         this.username = username;
         this.usernameComponent = Component.text(username);
         this.playerConnection = playerConnection;
+        this.offlinePlayer = ccPlayer;
 
         setRespawnPoint(Pos.ZERO);
 

@@ -58,7 +58,7 @@ kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk
 
 # CubeColony
 ccapi = { group = "com.cubecolony", name = "api", version.ref = "ccapi" }
-ebean = { group = "io.ebean", name = "ebean", version.ref = "ebean" }
+ebean = { group = "io.ebean", name = "ebean-mysql", version.ref = "ebean" }
 
 # Miscellaneous
 hydrazine = { group = "com.github.MadMartian", name = "hydrazine-path-finding", version.ref = "hydrazine" }

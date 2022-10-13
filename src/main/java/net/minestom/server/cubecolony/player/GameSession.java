@@ -1,13 +1,15 @@
 package net.minestom.server.cubecolony.player;
 
-import com.cubecolony.api.players.CCPlayer;
 import com.cubecolony.api.players.CCSession;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 import java.util.Locale;
 
@@ -15,7 +17,6 @@ import java.util.Locale;
  * Cubestom
  *
  * @author Roch Blondiaux
-
  */
 @Entity
 @Table(name = "sessions")
@@ -39,6 +40,19 @@ public class GameSession implements CCSession {
     @Column(name = "updated_at")
     @WhenModified
     protected Date updatedAt;
+
+    public GameSession(String ip, Locale locale, boolean usingLauncher, String version, String launcherVersion) {
+        this.ip = ip;
+        this.locale = locale;
+        this.usingLauncher = usingLauncher;
+        this.version = version;
+        this.launcherVersion = launcherVersion;
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
+    }
+
+    public GameSession() {
+    }
 
     @Override
     public long getId() {

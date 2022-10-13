@@ -15,7 +15,6 @@ import java.util.*;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 13/10/2022
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DatabaseTest {
