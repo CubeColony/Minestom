@@ -4,6 +4,7 @@ import com.cubecolony.api.economy.game.CCBankAccount;
 import com.cubecolony.api.economy.game.CCPlayerAccount;
 import com.cubecolony.api.economy.store.CCPurchase;
 import com.cubecolony.api.friends.CCFriendshipRequest;
+import com.cubecolony.api.players.CCDiscordAccount;
 import com.cubecolony.api.players.CCPlayer;
 import com.cubecolony.api.players.CCPlayerPreferences;
 import com.cubecolony.api.players.CCSession;
@@ -50,6 +51,8 @@ public class OfflinePlayer implements CCPlayer {
     private PlayerPreferences preferences;
     @OneToOne
     private BankAccount bankAccount;
+    @OneToOne
+    private DiscordAccount discordAccount;
     @OneToOne(targetEntity = PlayerAccount.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CCPlayerAccount account;
     @OneToOne(targetEntity = Rank.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -207,6 +210,11 @@ public class OfflinePlayer implements CCPlayer {
                 .filter(ccSession -> ccSession.getEndDate() == null)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public @Nullable CCDiscordAccount getDiscordAccount() {
+        return discordAccount;
     }
 
     @Override
