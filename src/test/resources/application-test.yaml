@@ -1,0 +1,9 @@
+ebean:
+  ddl:
+    run: true
+    generate: true
+  test:
+    platform: sqlite
+    ddlMode: dropCreate
+    dbName: test
+

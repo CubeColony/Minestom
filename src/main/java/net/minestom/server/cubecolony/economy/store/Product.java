@@ -1,11 +1,13 @@
 package net.minestom.server.cubecolony.economy.store;
 
 import com.cubecolony.api.economy.store.CCProduct;
-import net.minestom.server.cubecolony.JPAModel;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -13,12 +15,13 @@ import java.util.Date;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 12/10/2022
  */
 @Entity
 @Table(name = "products")
-public class Product extends JPAModel implements CCProduct {
+public class Product implements CCProduct {
 
+    @Id
+    private long id;
     @Column(unique = true)
     private String name;
     @Column
@@ -31,6 +34,12 @@ public class Product extends JPAModel implements CCProduct {
     private double price;
     @Column
     private int stock;
+    @Column(name = "created_at")
+    @WhenCreated
+    protected Date createdAt;
+    @Column(name = "updated_at")
+    @WhenModified
+    protected Date updatedAt;
 
     @Override
     public long getId() {
@@ -90,5 +99,20 @@ public class Product extends JPAModel implements CCProduct {
     @Override
     public @NotNull Date getCreationDate() {
         return createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", payload='" + payload + '\'' +
+                ", type=" + type +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", stock=" + stock +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

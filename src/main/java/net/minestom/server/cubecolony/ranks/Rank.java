@@ -1,23 +1,28 @@
 package net.minestom.server.cubecolony.ranks;
 
 import com.cubecolony.api.ranks.CCRank;
-import net.minestom.server.cubecolony.JPAModel;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Set;
 
 /**
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 12/10/2022
  */
 @Entity
-@Table(name = "ranks")
-public class Rank extends JPAModel implements CCRank {
+@Table(name = "ranks", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name", "prefix"})
+})
+public class Rank implements CCRank {
 
+    @Id
+    private long id;
     @Column(name = "name", unique = true)
     private String name;
     @Column(name = "prefix", unique = true)
@@ -26,11 +31,26 @@ public class Rank extends JPAModel implements CCRank {
     private CCRank child;
     @ElementCollection(fetch = FetchType.LAZY)
     private Set<String> permissions;
+    @Column(name = "created_at")
+    @WhenCreated
+    protected Date createdAt;
+    @Column(name = "updated_at")
+    @WhenModified
+    protected Date updatedAt;
 
+    public Rank() {
+    }
+
+    public Rank(String name, String prefix, CCRank child, Set<String> permissions) {
+        this.name = name;
+        this.prefix = prefix;
+        this.child = child;
+        this.permissions = permissions;
+    }
 
     @Override
     public long getId() {
-        return this.id;
+        return id;
     }
 
     @Override
@@ -66,5 +86,18 @@ public class Rank extends JPAModel implements CCRank {
     @Override
     public @NotNull Set<String> getPermissions() {
         return permissions;
+    }
+
+    @Override
+    public String toString() {
+        return "Rank{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", prefix='" + prefix + '\'' +
+                ", child=" + child +
+                ", permissions=" + permissions +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

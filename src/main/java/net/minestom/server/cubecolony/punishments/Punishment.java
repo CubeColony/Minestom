@@ -2,27 +2,27 @@ package net.minestom.server.cubecolony.punishments;
 
 import com.cubecolony.api.players.CCPlayer;
 import com.cubecolony.api.punishments.CCPunishment;
-import net.minestom.server.cubecolony.JPAModel;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import net.minestom.server.cubecolony.player.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 12/10/2022
+
  */
 @Entity
 @Table(name = "punishments")
-public class Punishment extends JPAModel implements CCPunishment {
+public class Punishment implements CCPunishment {
 
+    @Id
+    private long id;
     @OneToOne
     private OfflinePlayer player;
     @Column
@@ -41,6 +41,12 @@ public class Punishment extends JPAModel implements CCPunishment {
     private String revoker;
     @Column(name = "revocation_reason")
     private String revocationReason;
+    @Column(name = "created_at")
+    @WhenCreated
+    protected Date createdAt;
+    @Column(name = "updated_at")
+    @WhenModified
+    protected Date updatedAt;
 
     @Override
     public long getId() {
@@ -105,5 +111,23 @@ public class Punishment extends JPAModel implements CCPunishment {
     @Override
     public @NotNull Date getLastUpdateDate() {
         return this.updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Punishment{" +
+                "id=" + id +
+                ", player=" + player +
+                ", issuer='" + issuer + '\'' +
+                ", type=" + type +
+                ", reason='" + reason + '\'' +
+                ", expiration=" + expiration +
+                ", permanent=" + permanent +
+                ", revoked=" + revoked +
+                ", revoker='" + revoker + '\'' +
+                ", revocationReason='" + revocationReason + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

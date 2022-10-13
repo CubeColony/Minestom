@@ -2,7 +2,8 @@ package net.minestom.server.cubecolony.economy.game;
 
 import com.cubecolony.api.economy.game.CCBankAccount;
 import com.cubecolony.api.economy.game.CCTransaction;
-import net.minestom.server.cubecolony.JPAModel;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,13 +14,15 @@ import java.util.Date;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 12/10/2022
+
  */
 
 @Entity
 @Table(name = "transactions")
-public class FinancialTransaction extends JPAModel implements CCTransaction {
+public class FinancialTransaction  implements CCTransaction {
 
+    @Id
+    private long id;
     @OneToOne
     private BankAccount account;
     @Column
@@ -30,6 +33,12 @@ public class FinancialTransaction extends JPAModel implements CCTransaction {
     private Type type;
     @Column
     private Action action;
+    @Column(name = "created_at")
+    @WhenCreated
+    protected Date createdAt;
+    @Column(name = "updated_at")
+    @WhenModified
+    protected Date updatedAt;
 
     @Override
     public long getId() {
@@ -69,5 +78,19 @@ public class FinancialTransaction extends JPAModel implements CCTransaction {
     @Override
     public @NotNull Date getCreationDate() {
         return this.createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "FinancialTransaction{" +
+                "id=" + id +
+                ", account=" + account +
+                ", description='" + description + '\'' +
+                ", amount=" + amount +
+                ", type=" + type +
+                ", action=" + action +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

@@ -2,14 +2,12 @@ package net.minestom.server.cubecolony.player;
 
 import com.cubecolony.api.players.CCPlayer;
 import com.cubecolony.api.players.CCSession;
-import net.minestom.server.cubecolony.JPAModel;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Locale;
 
@@ -17,14 +15,14 @@ import java.util.Locale;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 12/10/2022
+
  */
 @Entity
 @Table(name = "sessions")
-public class GameSession extends JPAModel implements CCSession {
+public class GameSession implements CCSession {
 
-    @OneToOne
-    private OfflinePlayer player;
+    @Id
+    private long id;
     @Column
     private String ip;
     @Column
@@ -35,15 +33,16 @@ public class GameSession extends JPAModel implements CCSession {
     private String version;
     @Column(name = "launcher_version")
     private String launcherVersion;
+    @Column(name = "created_at")
+    @WhenCreated
+    protected Date createdAt;
+    @Column(name = "updated_at")
+    @WhenModified
+    protected Date updatedAt;
 
     @Override
     public long getId() {
         return this.id;
-    }
-
-    @Override
-    public @NotNull CCPlayer getPlayer() {
-        return player;
     }
 
     @Override
@@ -79,5 +78,19 @@ public class GameSession extends JPAModel implements CCSession {
     @Override
     public @Nullable Date getEndDate() {
         return this.updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "GameSession{" +
+                "id=" + id +
+                ", ip='" + ip + '\'' +
+                ", locale=" + locale +
+                ", usingLauncher=" + usingLauncher +
+                ", version='" + version + '\'' +
+                ", launcherVersion='" + launcherVersion + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

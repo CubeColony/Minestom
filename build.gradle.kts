@@ -80,6 +80,10 @@ dependencies {
 
     // CubeColony
     implementation(libs.bundles.cubeColony)
+    annotationProcessor("io.ebean:querybean-generator:${libs.versions.ebean.get()}")
+    testImplementation("io.ebean:ebean-test:${libs.versions.ebean.get()}")
+    implementation("org.xerial:sqlite-jdbc:3.39.3.0")
+    implementation("io.ebean:ebean-migration:13.6.2")
 
     // Minestom Data (From MinestomDataGenerator)
     implementation(libs.minestomData)

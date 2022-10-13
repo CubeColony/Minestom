@@ -2,34 +2,42 @@ package net.minestom.server.cubecolony.friends;
 
 import com.cubecolony.api.friends.CCFriendshipRequest;
 import com.cubecolony.api.players.CCPlayer;
-import net.minestom.server.cubecolony.JPAModel;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import net.minestom.server.cubecolony.player.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 12/10/2022
+
  */
 @Entity
 @Table(name = "friendship_requests")
-public class FriendshipRequest extends JPAModel implements CCFriendshipRequest {
+public class FriendshipRequest implements CCFriendshipRequest {
 
-    @OneToOne
+    @Id
+    private long id;
+    @OneToOne(targetEntity = OfflinePlayer.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "issuer_id", nullable = false)
     private OfflinePlayer sender;
-    @OneToOne
+    @OneToOne(targetEntity = OfflinePlayer.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "target_id", nullable = false)
     private OfflinePlayer receiver;
     @Column(name = "expires_at")
     private Date expirationDate;
     @Column
     private Status status;
+    @Column(name = "created_at")
+    @WhenCreated
+    protected Date createdAt;
+    @Column(name = "updated_at")
+    @WhenModified
+    protected Date updatedAt;
 
     @Override
     public long getId() {
@@ -79,5 +87,18 @@ public class FriendshipRequest extends JPAModel implements CCFriendshipRequest {
     @Override
     public @NotNull Date getLastUpdate() {
         return this.updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "FriendshipRequest{" +
+                "id=" + id +
+                ", sender=" + sender +
+                ", receiver=" + receiver +
+                ", expirationDate=" + expirationDate +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

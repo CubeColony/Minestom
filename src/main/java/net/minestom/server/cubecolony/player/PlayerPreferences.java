@@ -8,20 +8,31 @@ import javax.persistence.*;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 12/10/2022
+
  */
 @Entity
 @Table(name = "preferences")
 public class PlayerPreferences implements CCPlayerPreferences {
 
     @Id
-    private Long id;
+    private long id;
 
     @Column(name = "chat")
     private boolean chatEnabled;
     @Column(name = "private_messages")
     private boolean privateMessagesEnabled;
+    @Column(name = "friend_requests")
+    private boolean friendRequestsEnabled;
 
+
+    public PlayerPreferences(boolean chatEnabled, boolean privateMessagesEnabled, boolean friendRequestsEnabled) {
+        this.chatEnabled = chatEnabled;
+        this.privateMessagesEnabled = privateMessagesEnabled;
+        this.friendRequestsEnabled = friendRequestsEnabled;
+    }
+
+    public PlayerPreferences() {
+    }
 
     @Override
     public boolean arePrivateMessagesEnabled() {
@@ -41,5 +52,24 @@ public class PlayerPreferences implements CCPlayerPreferences {
     @Override
     public void setChatEnabled(boolean b) {
         this.chatEnabled = b;
+    }
+
+    @Override
+    public boolean acceptsFriendRequests() {
+        return friendRequestsEnabled;
+    }
+
+    @Override
+    public void setAcceptsFriendRequests(boolean b) {
+        this.friendRequestsEnabled = b;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerPreferences{" +
+                "id=" + id +
+                ", chatEnabled=" + chatEnabled +
+                ", privateMessagesEnabled=" + privateMessagesEnabled +
+                '}';
     }
 }
