@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 13/10/2022
+
  */
 public interface FinancialEvent extends Event, CancellableEvent {
 

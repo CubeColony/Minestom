@@ -67,8 +67,8 @@ toml4j = { group = "com.moandjiezana.toml", name = "toml4j", version.ref = "toml
 
 # Ebean
 ebean = { group = "io.ebean", name = "ebean-mysql", version.ref = "ebean" }
-ebeanDllGenerator = { group = "io.ebean", name = "ebean-dll-generator", version.ref = "ebean" }
-ebean-query = { group = "io.ebean", name = "ebean-querybean-generator", version.ref = "ebean" }
+ebean-ddl-generator = { group = "io.ebean", name = "ebean-ddl-generator", version.ref = "ebean" }
+ebean-query = { group = "io.ebean", name = "querybean-generator", version.ref = "ebean" }
 
 # Miscellaneous
 hydrazine = { group = "com.github.MadMartian", name = "hydrazine-path-finding", version.ref = "hydrazine" }
@@ -124,5 +124,5 @@ flare = ["flare", "flare-fastutil"]
 adventure = ["adventure-api", "adventure-serializer-gson", "adventure-serializer-legacy", "adventure-serializer-plain"]
 logging = ["tinylog-api", "tinylog-impl", "tinylog-slf4j"]
 terminal = ["jline", "jline-jansi"]
-cubeColony = ["ccapi", "miniMessage", "mysqlConnector", "toml4j"]
-ebean = ["ebean", "ebeanDllGenerator"]
+cubeColony = ["ccapi", "mysqlConnector"]
+ebean = ["ebean", "ebean-ddl-generator"]

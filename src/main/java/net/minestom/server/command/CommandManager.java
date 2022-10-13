@@ -4,7 +4,6 @@ import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandDispatcher;
 import net.minestom.server.command.builder.CommandResult;
 import net.minestom.server.command.builder.ParsedCommand;
-import net.minestom.server.command.impl.*;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.player.PlayerCommandEvent;
@@ -35,12 +34,6 @@ public final class CommandManager {
     private CommandCallback unknownCommandCallback;
 
     public CommandManager() {
-        register(new GamemodeCommand(),
-                new GiveCommand(),
-                new KillCommand(),
-                new ShutdownCommand(),
-                new TeleportCommand(),
-                new TeleportHereCommand());
     }
 
     public synchronized void register(Command... commands) {

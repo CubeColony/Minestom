@@ -15,7 +15,7 @@ import java.util.Random;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 13/10/2022
+offlinePlayer
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class EconomyTest {

@@ -11,7 +11,7 @@ import javax.persistence.Table;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 13/10/2022
+
  */
 @Entity
 @Table(name = "discord_accounts")

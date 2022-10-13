@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  * Cubestom
  *
  * @author Roch Blondiaux
- * @date 13/10/2022
+
  */
 public class EconomyService {
 
