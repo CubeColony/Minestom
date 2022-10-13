@@ -80,13 +80,13 @@ dependencies {
 
     // CubeColony
     implementation(libs.bundles.cubeColony)
-    annotationProcessor("io.ebean:querybean-generator:${libs.versions.ebean.get()}")
-    testImplementation("io.ebean:ebean-test:${libs.versions.ebean.get()}")
+
+    // Ebean
+    implementation(libs.bundles.ebean)
+    annotationProcessor(libs.ebean.query)
+    testImplementation(libs.ebean.test)
+    testImplementation(libs.ebean.sqlite)
     testImplementation("org.xerial:sqlite-jdbc:3.39.3.0")
-    testImplementation("io.ebean:ebean-platform-sqlite:13.9.3")
-    implementation("mysql:mysql-connector-java:8.0.30")
-// https://mvnrepository.com/artifact/io.ebean/ebean-ddl-generator
-    implementation("io.ebean:ebean-ddl-generator:13.9.3")
 
     // Minestom Data (From MinestomDataGenerator)
     implementation(libs.minestomData)

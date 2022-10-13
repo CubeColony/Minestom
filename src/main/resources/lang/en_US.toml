@@ -1,0 +1,80 @@
+hello_world = "Hello World!"
+
+test = '''
+<gradient:{0}:{1}:{0}>This is a cool i18n test!</gradient>
+<hover:show_text:'<gradient:{0}:red:{1}>Gradient Text Test</gradient>'>Welcome to <b>{2}</b>, <click:run_command:Gotchya bitch!><i>{3}</i></click>!</hover>
+<white>Press <gray><key:key.forward> <white>to walk forward
+<white>Press <gray><key:key.sneak> <white>to sneak
+'''
+
+[command]
+unknown_command = "<red>Unrecognised Command."
+player_command_only = "Please run this command in-game."
+requires_rank = "<red>This function requires {0} rank."
+target_not_found = "<red>{0} could not be found."
+entity_not_found = "No entity was found."
+
+[command.whitelist]
+usage = "<red>Usage: /{0} <add/remove> <player>"
+whitelist_on = "<i><gray>Whitelist has been turned on</i>"
+whitelist_off = "<i><gray>Whitelist has been turned off</i>"
+whitelist_added_user = "<i><gray>{0} has been added to the whitelist</i>"
+whitelist_removed_user = "<i><gray>{0} has been removed from the whitelist</i>"
+not_whitelisted = "<i><gray>You're not whitelisted.. HA!</i>"
+
+[command.gamemode]
+usage = "<red>Usage: /{0} <gamemode> [targets]"
+invalid_gamemode = "<red>Invalid GameMode <white>{0}<red>!"
+gamemode_changed = "Your game mode has been updated to {0}"
+gamemode_success_self = "Set own game mode to {0}"
+gamemode_success_other = "Set {0}'s game mode to {1}"
+survival = "Survival"
+creative = "Creative"
+adventure = "Adventure"
+spectator = "Spectator"
+
+[command.give]
+usage = "<red>Usage: /{0} <target> <item> [<count>]"
+received_item = "<i><gray>Received x{0} of {1}</i>"
+
+[command.kill]
+usage = "<red>Usage: /{0} [entities]"
+killed_entities = "<i><gray>Killed <white>{0} <gray>entities</i>"
+
+[command.teleport]
+usage = "<red>Usage: /{0} <x,y,z/entity>"
+teleported_to_target = "<i><gray>Teleported to player <white>{0}</i>"
+teleported_to_position = "<i><gray>Teleported to <white>{0}</i>"
+
+[command.rank]
+usage = "<red>Usage: /{0} <target> <rank>"
+unrecognised_rank = "<red>The role '{0}' was unrecognised."
+received_rank = "<i><gray>You received {0} rank!</i>"
+revoked_rank = "<i><gray>Your {0} rank was revoked.</i>"
+user_info = '''
+
+'''
+
+[command.discord]
+discord_link = "<hover:show_text:'<gray><i>Click to link your account</i>'><click:open_url:{0}><#404EED><b>DISCORD </b> <gray><i>Click here to link your account.</i></click></hover>"
+
+[weapon]
+damage = "Damage"
+
+[weapon.firearm]
+reloading = "Reloading..."
+reloaded = "Reloaded."
+
+[medal]
+double_kill = "Double Kill"
+double_kill_desc = "Kill two enemies within two seconds."
+triple_kill = "Triple Kill"
+triple_kill_desc = "Kill three enemies within two seconds."
+multi_kill = "Multi-Kill"
+multi_kill_desc = "Kill four or more enemies within two seconds. "
+
+[statistic]
+player_kills = "Player Kills"
+civilian_kills = "Civilian Kills"
+deaths = "Deaths"
+assists = "Assists"

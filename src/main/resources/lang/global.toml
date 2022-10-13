@@ -1,0 +1,33 @@
+# Global Properties
+
+network_name = "CubeColony"
+website = "https://cubecolony.net"
+website_store = "https://store.cubecolony.net"
+
+network_motd = '''
+<#7DBAFF>CubeColony Network <#F4F8FD>¹‧¹⁸⁺
+<b><#568DE5>HIT AND RUN</b> <#222E40>[v0.1] <#F4F8FD>- <#CBDCF7>Release: {0}
+'''
+
+primary_colour_dark = "#568DE5"
+primary_colour_medium = "#84ADEA"
+primary_colour_light = "#CBDCF7"
+primary_colour_lightest = "#F4F8FD"
+
+release = "2022-06-01T12:00:00.0Z"
+
+changes = '''
+<white>Change Log <i><dark_gray>Version 0.1
+
+<green>Feature <gray>(2)
+<green> ● <gray>something here
+<green> ● <gray>something else here
+
+<red>Fix <gray>(2)
+<red> ● <gray>something here
+<red> ● <gray>something else here
+
+<yellow>Other <gray>(2)
+<yellow> ● <gray>something here
+<yellow> ● <gray>something else here
+'''

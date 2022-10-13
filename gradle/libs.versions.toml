@@ -18,6 +18,9 @@ jline = "3.21.0"
 # CubeColony
 ccapi = "1.5.8-SNAPSHOT"
 ebean = "13.9.3"
+mysqlConnector = "8.0.30"
+minimessage = "4.11.0"
+toml4j = "0.7.4-SNAPSHOT"
 
 # Performance / Data Structures
 caffeine = "3.0.6"
@@ -58,7 +61,14 @@ kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk
 
 # CubeColony
 ccapi = { group = "com.cubecolony", name = "api", version.ref = "ccapi" }
+miniMessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "minimessage" }
+mysqlConnector = { group = "mysql", name = "mysql-connector-java", version.ref = "mysqlConnector" }
+toml4j = { group = "com.moandjiezana.toml", name = "toml4j", version.ref = "toml4j" }
+
+# Ebean
 ebean = { group = "io.ebean", name = "ebean-mysql", version.ref = "ebean" }
+ebeanDllGenerator = { group = "io.ebean", name = "ebean-dll-generator", version.ref = "ebean" }
+ebean-query = { group = "io.ebean", name = "ebean-querybean-generator", version.ref = "ebean" }
 
 # Miscellaneous
 hydrazine = { group = "com.github.MadMartian", name = "hydrazine-path-finding", version.ref = "hydrazine" }
@@ -90,6 +100,9 @@ junit-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", ver
 junit-suite-api = { group = "org.junit.platform", name = "junit-platform-suite-api", version.ref = "junit-platform" }
 junit-suite-engine = { group = "org.junit.platform", name = "junit-platform-suite-engine", version.ref = "junit-platform" }
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+ebean-test = { group = "io.ebean", name = "ebean-test", version.ref = "ebean" }
+ebean-sqlite = { group = "io.ebean", name = "ebean-platform-sqlite", version.ref = "ebean" }
+
 
 # Code Generation
 javaPoet = { group = "com.squareup", name = "javapoet", version.ref = "javaPoet" }
@@ -111,4 +124,5 @@ flare = ["flare", "flare-fastutil"]
 adventure = ["adventure-api", "adventure-serializer-gson", "adventure-serializer-legacy", "adventure-serializer-plain"]
 logging = ["tinylog-api", "tinylog-impl", "tinylog-slf4j"]
 terminal = ["jline", "jline-jansi"]
-cubeColony = ["ccapi", "ebean"]
+cubeColony = ["ccapi", "miniMessage", "mysqlConnector", "toml4j"]
+ebean = ["ebean", "ebeanDllGenerator"]
