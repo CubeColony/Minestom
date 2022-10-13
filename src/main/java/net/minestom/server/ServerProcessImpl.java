@@ -99,7 +99,7 @@ final class ServerProcessImpl implements ServerProcess {
         this.ticker = new TickerImpl();
 
         // Cube Colony
-        this.authenticationService = new AuthenticationService(MinecraftServer.getDatabase(), connection);
+        this.authenticationService = new AuthenticationService(MinecraftServer.getDatabase(), connection, eventHandler);
     }
 
     @Override
@@ -190,6 +190,11 @@ final class ServerProcessImpl implements ServerProcess {
     @Override
     public @NotNull PacketProcessor packetProcessor() {
         return packetProcessor;
+    }
+
+    @Override
+    public @NotNull AuthenticationService getAuthenticationService() {
+        return authenticationService;
     }
 
     @Override

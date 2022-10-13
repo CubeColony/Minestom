@@ -7,6 +7,7 @@ import io.ebean.datasource.DataSourceConfig;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
+import net.minestom.server.cubecolony.authentification.AuthenticationService;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.ExtensionManager;
@@ -112,11 +113,12 @@ public final class MinecraftServer {
         dataSourceConfig.setPassword(properties.getProperty("datasource.password"));
         dataSourceConfig.setUrl(properties.getProperty("datasource.url"));
 
-
         DatabaseConfig config = new DatabaseConfig();
         config.setDataSourceConfig(dataSourceConfig);
+        config.setDdlInitSql("db-create-all.sql");
         config.setDdlRun(true);
         config.setDdlGenerate(true);
+
         MinecraftServer.database = DatabaseFactory.create(config);
     }
 
@@ -213,6 +215,10 @@ public final class MinecraftServer {
 
     public static @NotNull ConnectionManager getConnectionManager() {
         return serverProcess.connection();
+    }
+
+    public static @NotNull AuthenticationService getAuthenticationService() {
+        return serverProcess.getAuthenticationService();
     }
 
     public static @NotNull BossBarManager getBossBarManager() {

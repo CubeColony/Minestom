@@ -34,6 +34,8 @@ public class GameSession implements CCSession {
     private String version;
     @Column(name = "launcher_version")
     private String launcherVersion;
+    @Column(name = "ended_at")
+    private Date endDate;
     @Column(name = "created_at")
     @WhenCreated
     protected Date createdAt;
@@ -91,7 +93,11 @@ public class GameSession implements CCSession {
 
     @Override
     public @Nullable Date getEndDate() {
-        return this.updatedAt;
+        return this.endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     @Override
@@ -103,6 +109,7 @@ public class GameSession implements CCSession {
                 ", usingLauncher=" + usingLauncher +
                 ", version='" + version + '\'' +
                 ", launcherVersion='" + launcherVersion + '\'' +
+                ", endDate=" + endDate +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';

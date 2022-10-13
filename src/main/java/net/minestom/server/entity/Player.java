@@ -2168,4 +2168,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
 
     }
 
+    public CCPlayer getOfflinePlayer() {
+        return offlinePlayer;
+    }
 }

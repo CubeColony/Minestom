@@ -23,7 +23,7 @@ public class TestPermissions {
     @BeforeEach
     public void init() {
         MinecraftServer.init(); // for entity manager
-        player = new Player( UUID.randomUUID(), "TestPlayer", null) {
+        player = new Player( UUID.randomUUID(), "TestPlayer", null, null) {
             @Override
             protected void playerConnectionInit() {
             }

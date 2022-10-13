@@ -18,6 +18,7 @@ import net.minestom.server.cubecolony.friends.FriendshipRequest;
 import net.minestom.server.cubecolony.punishments.Punishment;
 import net.minestom.server.cubecolony.ranks.Rank;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
 import java.awt.*;
@@ -64,7 +65,7 @@ public class OfflinePlayer implements CCPlayer {
     private Set<CCFriendshipRequest> friendshipRequests = new HashSet<>();
     @ManyToMany(targetEntity = OfflinePlayer.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "friends",
-            joinColumns = {@JoinColumn(name = "player_1_id"), @JoinColumn(name = "player_2_id")},
+            joinColumns = {@JoinColumn(name = "friend_id")},
             inverseJoinColumns = @JoinColumn(name = "id"))
     private Set<CCPlayer> friends = new HashSet<>();
     @Column(name = "created_at")
@@ -198,6 +199,14 @@ public class OfflinePlayer implements CCPlayer {
     @Override
     public boolean areFriends(@NotNull CCPlayer ccPlayer) {
         return false;
+    }
+
+    @Override
+    public @Nullable CCSession getCurrentSession() {
+        return sessions.stream()
+                .filter(ccSession -> ccSession.getEndDate() == null)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
