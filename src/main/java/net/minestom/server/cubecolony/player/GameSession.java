@@ -77,8 +77,13 @@ public class GameSession implements CCSession {
     }
 
     @Override
-    public @NotNull Locale getLocale() {
+    public @Nullable Locale getLocale() {
         return locale;
+    }
+
+    @Override
+    public void setLocale(@NotNull Locale locale) {
+        this.locale = locale;
     }
 
     @Override

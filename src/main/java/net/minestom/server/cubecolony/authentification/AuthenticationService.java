@@ -14,6 +14,7 @@ import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerLoginEvent;
+import net.minestom.server.event.player.PlayerSettingsChangeEvent;
 import net.minestom.server.event.trait.PlayerEvent;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.network.player.PlayerConnection;
@@ -38,6 +39,7 @@ public class AuthenticationService {
 
     public AuthenticationService(Database database, ConnectionManager manager, GlobalEventHandler eventHandler) {
         this.database = database;
+        manager.setUuidProvider((playerConnection, username) -> UUID.nameUUIDFromBytes(username.getBytes()));
         manager.setPlayerProvider((uuid, username, connection) -> new Player(uuid, username, connection, findByUniqueId(uuid).orElseGet(() -> registerPlayer(uuid, username))));
 
         registerListeners(eventHandler);
@@ -48,8 +50,15 @@ public class AuthenticationService {
      */
     public void registerListeners(GlobalEventHandler handler) {
         EventNode<PlayerEvent> authNode = EventNode.type("authentication-listener", EventFilter.PLAYER);
-        authNode.addListener(PlayerLoginEvent.class, event -> startSession(event.getPlayer()));
-        authNode.addListener(PlayerDisconnectEvent.class, event -> endSession(event.getPlayer()));
+        authNode.addListener(PlayerLoginEvent.class, event -> startSession(event.getPlayer()))
+                .addListener(PlayerDisconnectEvent.class, event -> endSession(event.getPlayer()))
+                .addListener(PlayerSettingsChangeEvent.class, event -> {
+                    final Player player = event.getPlayer();
+                    if (player.getCurrentSession() != null && player.getLocale() != null) {
+                        player.getCurrentSession().setLocale(player.getLocale());
+                        database.save(player.getCurrentSession());
+                    }
+                });
 
         handler.addChild(authNode);
     }
@@ -96,6 +105,7 @@ public class AuthenticationService {
         }
         session.setEndDate(new Date());
         database.update(session);
+        player.update();
     }
 
     /**
@@ -106,6 +116,7 @@ public class AuthenticationService {
      * @return the registered player
      */
     private @Blocking OfflinePlayer registerPlayer(UUID uuid, String name) {
+        LOGGER.info("Registering player {} ({})", name, uuid);
         final Date now = new Date();
         PlayerPreferences preferences = new PlayerPreferences(true, true, true);
         database.insert(preferences);
@@ -124,8 +135,9 @@ public class AuthenticationService {
                 preferences,
                 bankAccount,
                 account);
-        database.save(offlinePlayer);
+        database.insert(offlinePlayer);
 
+        LOGGER.info("Player {} ({}) registered", name, uuid);
         return offlinePlayer;
     }
 

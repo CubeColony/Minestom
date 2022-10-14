@@ -34,6 +34,7 @@ import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.cubecolony.ranks.Rank;
 import net.minestom.server.effects.Effects;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
@@ -67,6 +68,7 @@ import net.minestom.server.network.packet.server.login.LoginDisconnectPacket;
 import net.minestom.server.network.packet.server.play.*;
 import net.minestom.server.network.player.PlayerConnection;
 import net.minestom.server.network.player.PlayerSocketConnection;
+import net.minestom.server.permission.Permission;
 import net.minestom.server.recipe.Recipe;
 import net.minestom.server.recipe.RecipeManager;
 import net.minestom.server.resourcepack.ResourcePack;
@@ -2177,6 +2179,11 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
 
     }
 
+    @Override
+    public @NotNull Set<Permission> getAllPermissions() {
+        return ((Rank) getRank()).getAllPermissions();
+    }
+
     public CCPlayer getOfflinePlayer() {
         return offlinePlayer;
     }
@@ -2215,7 +2222,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
         return this.offlinePlayer.getAccount();
     }
 
-    public @NotNull CCRank getRank() {
+    public @Nullable CCRank getRank() {
         return this.offlinePlayer.getRank();
     }
 
@@ -2276,5 +2283,9 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
     @NotNull
     public Date getCreationDate() {
         return this.offlinePlayer.getCreationDate();
+    }
+
+    public void update() {
+        MinecraftServer.getDatabase().update(this.offlinePlayer);
     }
 }

@@ -16,7 +16,7 @@ tinylog = "2.4.1"
 jline = "3.21.0"
 
 # CubeColony
-ccapi = "1.5.8-SNAPSHOT"
+ccapi = "1.5.10-SNAPSHOT"
 ebean = "13.9.3"
 mysqlConnector = "8.0.30"
 minimessage = "4.11.0"

@@ -3,12 +3,15 @@ package net.minestom.server.cubecolony.ranks;
 import com.cubecolony.api.ranks.CCRank;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
+import net.minestom.server.permission.Permission;
+import net.minestom.server.permission.PermissionHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Cubestom
@@ -19,11 +22,11 @@ import java.util.Set;
 @Table(name = "ranks", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"name", "prefix"})
 })
-public class Rank implements CCRank {
+public class Rank implements CCRank, PermissionHandler {
 
     @Id
     private long id;
-    @Column(name = "name", unique = true)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
     @Column(name = "prefix", unique = true)
     private String prefix;
@@ -31,7 +34,9 @@ public class Rank implements CCRank {
     private CCRank child;
     @ElementCollection(fetch = FetchType.LAZY)
     private Set<String> permissions;
-    @Column(name = "created_at")
+    @Column(name = "discord_id", nullable = false)
+    private long discordId;
+    @Column(name = "created_at", nullable = false)
     @WhenCreated
     protected Date createdAt;
     @Column(name = "updated_at")
@@ -84,6 +89,16 @@ public class Rank implements CCRank {
     }
 
     @Override
+    public long getDiscordId() {
+        return discordId;
+    }
+
+    @Override
+    public void setDiscordId(long l) {
+        this.discordId = l;
+    }
+
+    @Override
     public @NotNull Set<String> getPermissions() {
         return permissions;
     }
@@ -99,5 +114,13 @@ public class Rank implements CCRank {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
+    }
+
+
+    @Override
+    public @NotNull Set<Permission> getAllPermissions() {
+        return permissions.stream()
+                .map(Permission::new)
+                .collect(Collectors.toSet());
     }
 }
