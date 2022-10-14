@@ -8,17 +8,16 @@ plugins {
 }
 
 application {
-    mainClass.set("net.minestom.demo.Main")
+    mainClass.set("com.cubecolony.server.ServerLauncher")
     // This is included because Shadow is buggy. Wait for https://github.com/johnrengelman/shadow/issues/613 to befixed.
     @Suppress("DEPRECATION")
-    mainClassName = "net.minestom.demo.Main"
+    mainClassName = "com.cubecolony.server.ServerLauncher"
 }
 
 dependencies {
     implementation(rootProject)
-    implementation(libs.jNoise)
 }
 
 tasks.withType<ShadowJar> {
-    archiveFileName.set("minestom-demo.jar")
+    archiveFileName.set("cubestom.jar")
 }

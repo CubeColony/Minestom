@@ -37,8 +37,6 @@ mockito = "4.2.0"
 # Code Generation
 javaPoet = "1.13.0"
 
-# Demo
-jNoise = "b93008e35e"
 
 # JMH
 jmh = "1.35"
@@ -106,9 +104,6 @@ ebean-sqlite = { group = "io.ebean", name = "ebean-platform-sqlite", version.ref
 
 # Code Generation
 javaPoet = { group = "com.squareup", name = "javapoet", version.ref = "javaPoet" }
-
-# Demo
-jNoise = { group = "com.github.Articdive.JNoise", name = "jnoise-pipeline", version.ref = "jNoise" }
 
 # JMH
 jmh-core = { group = "org.openjdk.jmh", name = "jmh-core", version.ref = "jmh" }
