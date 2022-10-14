@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "net.minestom.server"
-    version = "1.1"
+    version = "1.2"
     description = "Lightweight and multi-threaded Minecraft server implementation"
 }
 
@@ -103,7 +103,7 @@ publishing {
             pom {
                 group = "com.cubecolony"
                 artifactId = "cubestom"
-                version = "1.1"
+                version = "1.2"
             }
 
             from(components["java"])

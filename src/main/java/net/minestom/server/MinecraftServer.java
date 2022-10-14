@@ -9,6 +9,7 @@ import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.cubecolony.authentification.AuthenticationService;
 import net.minestom.server.cubecolony.economy.EconomyService;
+import net.minestom.server.cubecolony.redis.RedisManager;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.ExtensionManager;
@@ -121,6 +122,9 @@ public final class MinecraftServer {
        // config.setDdlGenerate(true);
 
         MinecraftServer.database = DatabaseFactory.create(config);
+
+        // Redis
+        RedisManager.enable("discord");
     }
 
     /**
