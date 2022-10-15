@@ -124,7 +124,7 @@ public final class MinecraftServer {
         MinecraftServer.database = DatabaseFactory.create(config);
 
         // Redis
-        RedisManager.enable("discord");
+        RedisManager.enable("discord", "global");
     }
 
     /**
