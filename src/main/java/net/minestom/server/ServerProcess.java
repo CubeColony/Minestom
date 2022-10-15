@@ -5,6 +5,7 @@ import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.cubecolony.authentification.AuthenticationService;
 import net.minestom.server.cubecolony.economy.EconomyService;
+import net.minestom.server.cubecolony.player.OfflinePlayerRepository;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.ExtensionManager;
@@ -131,6 +132,13 @@ public interface ServerProcess extends Snapshotable {
      * @return the authentication service
      */
     @NotNull AuthenticationService authentication();
+
+    /**
+     * Get the offline player repository.
+     *
+     * @return the offline player repository
+     */
+    @NotNull OfflinePlayerRepository offlinePlayerRepository();
 
     /**
      * Gets the economy service.

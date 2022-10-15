@@ -1,11 +1,13 @@
 package net.minestom.server;
 
+import io.ebean.Database;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.cubecolony.authentification.AuthenticationService;
 import net.minestom.server.cubecolony.economy.EconomyService;
+import net.minestom.server.cubecolony.player.OfflinePlayerRepository;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.GlobalEventHandler;
@@ -69,6 +71,7 @@ final class ServerProcessImpl implements ServerProcess {
     private final Server server;
     private final AuthenticationService authenticationService;
     private final EconomyService economyService;
+    private final OfflinePlayerRepository offlinePlayerRepository;
 
     private final ThreadDispatcher<Chunk> dispatcher;
     private final Ticker ticker;
@@ -101,8 +104,10 @@ final class ServerProcessImpl implements ServerProcess {
         this.ticker = new TickerImpl();
 
         // Cube Colony
-        this.authenticationService = new AuthenticationService(MinecraftServer.getDatabase(), connection, eventHandler);
-        this.economyService = new EconomyService(MinecraftServer.getDatabase(), eventHandler);
+        final Database database = MinecraftServer.getDatabase();
+        this.offlinePlayerRepository = new OfflinePlayerRepository(database);
+        this.authenticationService = new AuthenticationService(database, connection, eventHandler);
+        this.economyService = new EconomyService(database, eventHandler);
     }
 
     @Override
@@ -201,6 +206,11 @@ final class ServerProcessImpl implements ServerProcess {
     }
 
     @Override
+    public @NotNull OfflinePlayerRepository offlinePlayerRepository() {
+        return offlinePlayerRepository;
+    }
+
+    @Override
     public @NotNull EconomyService economy() {
         return economyService;
     }
@@ -260,6 +270,8 @@ final class ServerProcessImpl implements ServerProcess {
         if (!stopped.compareAndSet(false, true))
             return;
         LOGGER.info("Stopping " + MinecraftServer.getBrandName() + " server.");
+        LOGGER.info("Ending players' sessions...");
+        offlinePlayerRepository.endSessions();
         LOGGER.info("Unloading all extensions.");
         extension.shutdown();
         scheduler.shutdown();

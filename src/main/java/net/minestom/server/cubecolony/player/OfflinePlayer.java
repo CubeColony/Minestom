@@ -1,5 +1,6 @@
 package net.minestom.server.cubecolony.player;
 
+import com.cubecolony.api.chat.CCPrivateMessage;
 import com.cubecolony.api.economy.game.CCBankAccount;
 import com.cubecolony.api.economy.game.CCPlayerAccount;
 import com.cubecolony.api.economy.store.CCPurchase;
@@ -12,6 +13,8 @@ import com.cubecolony.api.punishments.CCPunishment;
 import com.cubecolony.api.ranks.CCRank;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.cubecolony.chat.PrivateMessage;
 import net.minestom.server.cubecolony.economy.game.BankAccount;
 import net.minestom.server.cubecolony.economy.game.PlayerAccount;
 import net.minestom.server.cubecolony.economy.store.Purchase;
@@ -76,7 +79,6 @@ public class OfflinePlayer implements CCPlayer {
     @Column(name = "updated_at")
     @WhenModified
     protected Date updatedAt;
-
 
     public OfflinePlayer(UUID uuid, String name, Locale locale, long playTime, Date lastLogin, PlayerPreferences preferences, BankAccount bankAccount, PlayerAccount account) {
         this.uuid = uuid;
@@ -205,10 +207,43 @@ public class OfflinePlayer implements CCPlayer {
 
     @Override
     public @Nullable CCSession getCurrentSession() {
-        return sessions.stream()
-                .filter(ccSession -> ccSession.getEndDate() == null)
-                .findFirst()
-                .orElse(null);
+        return MinecraftServer.getDatabase()
+                .find(GameSession.class)
+                .where()
+                .isNull("ended_at")
+                .orderBy()
+                .asc("created_at")
+                .setMaxRows(1)
+                .findOne();
+    }
+
+    @Override
+    public @Nullable CCSession getLastSession() {
+        return MinecraftServer.getDatabase()
+                .find(GameSession.class)
+                .where()
+                .isNotNull("ended_at")
+                .orderBy()
+                .asc("ended_at")
+                .setMaxRows(1)
+                .findOne();
+    }
+
+    @Override
+    public @NotNull List<CCPrivateMessage> getPrivateMessages() {
+        return MinecraftServer.getDatabase()
+                .find(PrivateMessage.class)
+                .where()
+                .or()
+                .eq("receiver_id", id)
+                .eq("sender_id", id)
+                .endOr()
+                .orderBy()
+                .asc("created_at")
+                .findList()
+                .stream()
+                .map(privateMessage -> (CCPrivateMessage) privateMessage)
+                .toList();
     }
 
     @Override

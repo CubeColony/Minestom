@@ -9,6 +9,7 @@ import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.cubecolony.authentification.AuthenticationService;
 import net.minestom.server.cubecolony.economy.EconomyService;
+import net.minestom.server.cubecolony.player.OfflinePlayerRepository;
 import net.minestom.server.cubecolony.redis.RedisManager;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
@@ -117,9 +118,9 @@ public final class MinecraftServer {
 
         DatabaseConfig config = new DatabaseConfig();
         config.setDataSourceConfig(dataSourceConfig);
-       // config.setDdlInitSql("db-create-all.sql");
-       // config.setDdlRun(true);
-       // config.setDdlGenerate(true);
+        // config.setDdlInitSql("db-create-all.sql");
+         config.setDdlRun(true);
+         config.setDdlGenerate(true);
 
         MinecraftServer.database = DatabaseFactory.create(config);
 
@@ -357,6 +358,10 @@ public final class MinecraftServer {
 
     public static Server getServer() {
         return serverProcess.server();
+    }
+
+    public static OfflinePlayerRepository offlinePlayers() {
+        return serverProcess.offlinePlayerRepository();
     }
 
     public static Database getDatabase() {
