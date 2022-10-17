@@ -57,7 +57,7 @@ public class OfflinePlayer implements CCPlayer {
     private CCDiscordAccount discordAccount;
     @OneToOne(targetEntity = PlayerAccount.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CCPlayerAccount account;
-    @OneToOne(targetEntity = Rank.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(targetEntity = Rank.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private CCRank rank;
     @OneToMany(targetEntity = Purchase.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<CCPurchase> purchases = new HashSet<>();
@@ -89,7 +89,6 @@ public class OfflinePlayer implements CCPlayer {
         this.preferences = preferences;
         this.bankAccount = bankAccount;
         this.account = account;
-        this.rank = rank;
         this.purchases = new HashSet<>();
         this.punishments = new HashSet<>();
         this.sessions = new HashSet<>();

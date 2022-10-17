@@ -119,8 +119,8 @@ public final class MinecraftServer {
         DatabaseConfig config = new DatabaseConfig();
         config.setDataSourceConfig(dataSourceConfig);
         // config.setDdlInitSql("db-create-all.sql");
-         config.setDdlRun(true);
-         config.setDdlGenerate(true);
+        // config.setDdlRun(true);
+        // config.setDdlGenerate(true);
 
         MinecraftServer.database = DatabaseFactory.create(config);
 

@@ -45,6 +45,7 @@ public class ExtensionManager {
     private Path extensionDataRoot = extensionFolder.toPath();
 
     private enum State {DO_NOT_START, NOT_STARTED, STARTED, PRE_INIT, INIT, POST_INIT}
+
     private State state = State.NOT_STARTED;
 
     public ExtensionManager(ServerProcess serverProcess) {
@@ -716,7 +717,7 @@ public class ExtensionManager {
 
         for (String dependentID : dependents) {
             Extension dependentExt = extensions.get(dependentID.toLowerCase());
-            if ( dependentExt != null ) { // check if extension isn't already unloaded.
+            if (dependentExt != null) { // check if extension isn't already unloaded.
                 LOGGER.info("Unloading dependent extension {} (because it depends on {})", dependentID, extensionName);
                 unload(dependentExt);
             }
