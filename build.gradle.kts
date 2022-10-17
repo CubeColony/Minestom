@@ -103,7 +103,7 @@ publishing {
             pom {
                 group = "com.cubecolony"
                 artifactId = "cubestom"
-                version = "1.3.4"
+                version = "1.3.6"
             }
 
             from(components["java"])

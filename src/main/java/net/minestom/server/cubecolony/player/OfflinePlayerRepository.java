@@ -53,5 +53,6 @@ public class OfflinePlayerRepository {
                     session.setEndDate(new Date());
                     database.save(session);
                 });
+        database.shutdown();
     }
 }
