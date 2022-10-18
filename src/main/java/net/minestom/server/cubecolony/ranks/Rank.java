@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
+import java.awt.*;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +31,8 @@ public class Rank implements CCRank, PermissionHandler {
     private String name;
     @Column(name = "prefix", unique = true)
     private String prefix;
+    @Column(name = "weight", nullable = false)
+    private int weight;
     @OneToOne(targetEntity = Rank.class)
     private CCRank child;
     @ElementCollection(fetch = FetchType.LAZY)
@@ -46,9 +49,10 @@ public class Rank implements CCRank, PermissionHandler {
     public Rank() {
     }
 
-    public Rank(String name, String prefix, CCRank child, Set<String> permissions) {
+    public Rank(String name, String prefix, int weight, CCRank child, Set<String> permissions) {
         this.name = name;
         this.prefix = prefix;
+        this.weight = weight;
         this.child = child;
         this.permissions = permissions;
     }
@@ -103,19 +107,13 @@ public class Rank implements CCRank, PermissionHandler {
         return permissions;
     }
 
-    @Override
-    public String toString() {
-        return "Rank{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", prefix='" + prefix + '\'' +
-                ", child=" + child +
-                ", permissions=" + permissions +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+    public int getWeight() {
+        return weight;
     }
 
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
 
     @Override
     public @NotNull Set<Permission> getAllPermissions() {

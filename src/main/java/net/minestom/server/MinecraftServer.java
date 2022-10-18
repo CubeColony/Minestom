@@ -41,8 +41,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -102,12 +107,29 @@ public final class MinecraftServer {
 
     public static void initDatabase() {
         Properties properties = new Properties();
-        // TODO: load the file from current dir
-        properties.setProperty("datasource.username", "cubecolony");
-        properties.setProperty("datasource.password", "Cub3C0l0ny");
-        properties.setProperty("datasource.url", "jdbc:mysql://172.23.0.2:3306/cubecolony");
-        properties.setProperty("datasource.driver", "com.mysql.cj.jdbc.Driver");
-        properties.setProperty("datasource.platform", "mysql");
+        Path workingDirectory = Paths.get("");
+        Path propsPath = workingDirectory.resolve("database.properties");
+
+        if (!Files.exists(propsPath)) {
+            properties.setProperty("datasource.username", "cubecolony");
+            properties.setProperty("datasource.password", "Cub3C0l0ny");
+            properties.setProperty("datasource.url", "jdbc:mysql://172.23.0.2:3306/cubecolony");
+            properties.setProperty("datasource.driver", "com.mysql.cj.jdbc.Driver");
+            properties.setProperty("datasource.platform", "mysql");
+            properties.setProperty("datasource.ddl-run", "false");
+            properties.setProperty("datasource.ddl-generate", "false");
+            try (OutputStream out = Files.newOutputStream(propsPath)) {
+                properties.store(out, "Database properties");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try (InputStream inputStream = Files.newInputStream(propsPath)) {
+                properties.load(inputStream);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         DataSourceConfig dataSourceConfig = new DataSourceConfig();
         dataSourceConfig.setPlatform(properties.getProperty("datasource.platform"));
@@ -118,9 +140,10 @@ public final class MinecraftServer {
 
         DatabaseConfig config = new DatabaseConfig();
         config.setDataSourceConfig(dataSourceConfig);
+        // config.setDdlSeedSql("ddl.sql");
         // config.setDdlInitSql("db-create-all.sql");
-        // config.setDdlRun(true);
-        // config.setDdlGenerate(true);
+        config.setDdlRun(properties.getProperty("datasource.ddl-run", "false").equalsIgnoreCase("true"));
+        config.setDdlGenerate(properties.getProperty("datasource.ddl-generate", "false").equalsIgnoreCase("true"));
 
         MinecraftServer.database = DatabaseFactory.create(config);
 
