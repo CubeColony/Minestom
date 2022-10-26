@@ -119,7 +119,7 @@ final class TabListHandler {
                 Collections.emptyList();
         var packet = new PlayerInfoPacket(PlayerInfoPacket.Action.ADD_PLAYER,
                 new PlayerInfoPacket.AddPlayer(new UUID(index, 0), name, prop,
-                        GameMode.CREATIVE, 0, text));
+                        GameMode.CREATIVE, 0, text, null));
         queue.offer(packet);
 
         if (index >= 0) {
