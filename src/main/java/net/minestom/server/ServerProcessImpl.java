@@ -69,9 +69,12 @@ final class ServerProcessImpl implements ServerProcess {
     private final BossBarManager bossBar;
     private final TagManager tag;
     private final Server server;
+
+    // CubeColony start
     private final AuthenticationService authenticationService;
     private final EconomyService economyService;
     private final OfflinePlayerRepository offlinePlayerRepository;
+    // CubeColony end
 
     private final ThreadDispatcher<Chunk> dispatcher;
     private final Ticker ticker;
@@ -103,11 +106,12 @@ final class ServerProcessImpl implements ServerProcess {
         this.dispatcher = ThreadDispatcher.singleThread();
         this.ticker = new TickerImpl();
 
-        // Cube Colony
+        // CubeColony start
         final Database database = MinecraftServer.getDatabase();
         this.offlinePlayerRepository = new OfflinePlayerRepository(database);
         this.authenticationService = new AuthenticationService(database, connection, eventHandler);
         this.economyService = new EconomyService(database, eventHandler);
+        // CubeColony end
     }
 
     @Override
@@ -210,6 +214,7 @@ final class ServerProcessImpl implements ServerProcess {
         return offlinePlayerRepository;
     }
 
+    // CubeColony start
     @Override
     public @NotNull EconomyService economy() {
         return economyService;
@@ -224,6 +229,7 @@ final class ServerProcessImpl implements ServerProcess {
     public @NotNull ThreadDispatcher<Chunk> dispatcher() {
         return dispatcher;
     }
+    // CubeColony end
 
     @Override
     public @NotNull Ticker ticker() {
@@ -270,8 +276,12 @@ final class ServerProcessImpl implements ServerProcess {
         if (!stopped.compareAndSet(false, true))
             return;
         LOGGER.info("Stopping " + MinecraftServer.getBrandName() + " server.");
+
+        // CubeColony start
         LOGGER.info("Ending players' sessions...");
         offlinePlayerRepository.endSessions();
+        // CubeColony end
+
         LOGGER.info("Unloading all extensions.");
         extension.shutdown();
         scheduler.shutdown();
