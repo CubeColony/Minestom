@@ -20,7 +20,7 @@ public class CubestomServer {
 
     private void start(MinecraftServer minecraftServer) {
         OptifineSupport.enable();
-        MojangAuth.init();
+//        MojangAuth.init();
 
         minecraftServer.start("0.0.0.0", 25565);
     }
