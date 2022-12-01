@@ -36,16 +36,23 @@ public record LoginStartPacket(@NotNull String username,
 
     @Override
     public void process(@NotNull PlayerConnection connection) {
+        // Player is already connected
+        if (MinecraftServer.getConnectionManager().getPlayer(username) != null) {
+            connection.sendPacket(new LoginDisconnectPacket(Component.text("You arleady connected to this server", NamedTextColor.RED)));
+            connection.disconnect();
+            return;
+        }
+
         // TODO use uuid
         // TODO configurable check & messages
+
         if (publicKey != null) {
             if (!SignatureValidator.YGGDRASIL.validate(binaryWriter -> {
                 if (profileId != null) {
                     binaryWriter.write(LONG, profileId.getMostSignificantBits());
                     binaryWriter.write(LONG, profileId.getLeastSignificantBits());
-                } else {
+                } else
                     MinecraftServer.LOGGER.warn("Profile ID was null for player {}, signature will not match!", username);
-                }
                 binaryWriter.write(LONG, publicKey.expiresAt().toEpochMilli());
                 binaryWriter.write(RAW_BYTES, publicKey.publicKey().getEncoded());
             }, publicKey.signature())) {
@@ -89,14 +96,15 @@ public record LoginStartPacket(@NotNull String username,
             ThreadLocalRandom.current().nextBytes(nonce);
             socketConnection.setNonce(nonce);
             socketConnection.sendPacket(new EncryptionRequestPacket("", publicKey, nonce));
-        } else {
-            final boolean bungee = BungeeCordProxy.isEnabled();
-            // Offline
-            final UUID playerUuid = bungee && isSocketConnection ?
-                    ((PlayerSocketConnection) connection).gameProfile().uuid() :
-                    CONNECTION_MANAGER.getPlayerConnectionUuid(connection, username);
-            CONNECTION_MANAGER.startPlayState(connection, playerUuid, username, true);
+            return;
         }
+
+        final boolean bungee = BungeeCordProxy.isEnabled();
+        // Offline
+        final UUID playerUuid = bungee && isSocketConnection ?
+                ((PlayerSocketConnection) connection).gameProfile().uuid() :
+                CONNECTION_MANAGER.getPlayerConnectionUuid(connection, username);
+        CONNECTION_MANAGER.startPlayState(connection, playerUuid, username, true);
     }
 
     @Override
