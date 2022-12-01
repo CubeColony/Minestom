@@ -1,16 +1,10 @@
 package net.minestom.server;
 
-import io.ebean.Database;
-import io.ebean.DatabaseFactory;
-import io.ebean.config.DatabaseConfig;
-import io.ebean.datasource.DataSourceConfig;
+import com.cubecolony.mariadb.MariaDBManager;
+import com.cubecolony.redis.RedisManager;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
-import net.minestom.server.cubecolony.authentification.AuthenticationService;
-import net.minestom.server.cubecolony.economy.EconomyService;
-import net.minestom.server.cubecolony.player.OfflinePlayerRepository;
-import net.minestom.server.cubecolony.redis.RedisManager;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.ExtensionManager;
@@ -41,14 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
 
 /**
  * The main server class used to start the server and retrieve all the managers.
@@ -85,7 +73,7 @@ public final class MinecraftServer {
     private static Difficulty difficulty = Difficulty.NORMAL;
 
     // Cube Colony
-    private static Database database;
+//    private static Database database;
 
     public static MinecraftServer init() {
         initDatabase();
@@ -106,49 +94,52 @@ public final class MinecraftServer {
     }
 
     public static void initDatabase() {
-        Properties properties = new Properties();
-        Path workingDirectory = Paths.get("");
-        Path propsPath = workingDirectory.resolve("database.properties");
+//        Properties properties = new Properties();
+//        Path workingDirectory = Paths.get("");
+//        Path propsPath = workingDirectory.resolve("database.properties");
+//
+//        if (!Files.exists(propsPath)) {
+//            properties.setProperty("datasource.username", "cubecolony");
+//            properties.setProperty("datasource.password", "Cub3C0l0ny");
+//            properties.setProperty("datasource.url", "jdbc:mysql://172.23.0.2:3306/cubecolony");
+//            properties.setProperty("datasource.driver", "com.mysql.cj.jdbc.Driver");
+//            properties.setProperty("datasource.platform", "mysql");
+//            properties.setProperty("datasource.ddl-run", "false");
+//            properties.setProperty("datasource.ddl-generate", "false");
+//            try (OutputStream out = Files.newOutputStream(propsPath)) {
+//                properties.store(out, "Database properties");
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        } else {
+//            try (InputStream inputStream = Files.newInputStream(propsPath)) {
+//                properties.load(inputStream);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
 
-        if (!Files.exists(propsPath)) {
-            properties.setProperty("datasource.username", "cubecolony");
-            properties.setProperty("datasource.password", "Cub3C0l0ny");
-            properties.setProperty("datasource.url", "jdbc:mysql://172.23.0.2:3306/cubecolony");
-            properties.setProperty("datasource.driver", "com.mysql.cj.jdbc.Driver");
-            properties.setProperty("datasource.platform", "mysql");
-            properties.setProperty("datasource.ddl-run", "false");
-            properties.setProperty("datasource.ddl-generate", "false");
-            try (OutputStream out = Files.newOutputStream(propsPath)) {
-                properties.store(out, "Database properties");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            try (InputStream inputStream = Files.newInputStream(propsPath)) {
-                properties.load(inputStream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+//        DataSourceConfig dataSourceConfig = new DataSourceConfig();
+//        dataSourceConfig.setPlatform(properties.getProperty("datasource.platform"));
+//        dataSourceConfig.setDriver(properties.getProperty("datasource.driver"));
+//        dataSourceConfig.setUsername(properties.getProperty("datasource.username"));
+//        dataSourceConfig.setPassword(properties.getProperty("datasource.password"));
+//        dataSourceConfig.setUrl(properties.getProperty("datasource.url"));
 
-        DataSourceConfig dataSourceConfig = new DataSourceConfig();
-        dataSourceConfig.setPlatform(properties.getProperty("datasource.platform"));
-        dataSourceConfig.setDriver(properties.getProperty("datasource.driver"));
-        dataSourceConfig.setUsername(properties.getProperty("datasource.username"));
-        dataSourceConfig.setPassword(properties.getProperty("datasource.password"));
-        dataSourceConfig.setUrl(properties.getProperty("datasource.url"));
-
-        DatabaseConfig config = new DatabaseConfig();
-        config.setDataSourceConfig(dataSourceConfig);
+//        DatabaseConfig config = new DatabaseConfig();
+//        config.setDataSourceConfig(dataSourceConfig);
         // config.setDdlSeedSql("ddl.sql");
         // config.setDdlInitSql("db-create-all.sql");
-        config.setDdlRun(properties.getProperty("datasource.ddl-run", "false").equalsIgnoreCase("true"));
-        config.setDdlGenerate(properties.getProperty("datasource.ddl-generate", "false").equalsIgnoreCase("true"));
+//        config.setDdlRun(properties.getProperty("datasource.ddl-run", "false").equalsIgnoreCase("true"));
+//        config.setDdlGenerate(properties.getProperty("datasource.ddl-generate", "false").equalsIgnoreCase("true"));
 
-        MinecraftServer.database = DatabaseFactory.create(config);
+//        MinecraftServer.database = DatabaseFactory.create(config);
 
         // Redis
         RedisManager.enable("discord", "global");
+
+        // MariaDB
+        MariaDBManager.enable();
     }
 
     /**
@@ -244,14 +235,6 @@ public final class MinecraftServer {
 
     public static @NotNull ConnectionManager getConnectionManager() {
         return serverProcess.connection();
-    }
-
-    public static @NotNull AuthenticationService getAuthenticationService() {
-        return serverProcess.authentication();
-    }
-
-    public static @NotNull EconomyService getEconomyService() {
-        return serverProcess.economy();
     }
 
     public static @NotNull BossBarManager getBossBarManager() {
@@ -381,14 +364,6 @@ public final class MinecraftServer {
 
     public static Server getServer() {
         return serverProcess.server();
-    }
-
-    public static OfflinePlayerRepository offlinePlayers() {
-        return serverProcess.offlinePlayerRepository();
-    }
-
-    public static Database getDatabase() {
-        return database;
     }
 
     /**

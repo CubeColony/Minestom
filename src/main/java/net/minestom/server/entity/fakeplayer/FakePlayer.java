@@ -47,7 +47,7 @@ public class FakePlayer extends Player implements NavigableEntity {
     protected FakePlayer(@NotNull UUID uuid, @NotNull String username,
                          @NotNull FakePlayerOption option,
                          @Nullable Consumer<FakePlayer> spawnCallback) {
-        super(uuid, username, new FakePlayerConnection(), null);
+        super(uuid, username, new FakePlayerConnection());
 
         this.option = option;
 

@@ -3,9 +3,6 @@ package net.minestom.server;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
-import net.minestom.server.cubecolony.authentification.AuthenticationService;
-import net.minestom.server.cubecolony.economy.EconomyService;
-import net.minestom.server.cubecolony.player.OfflinePlayerRepository;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.ExtensionManager;
@@ -125,27 +122,6 @@ public interface ServerProcess extends Snapshotable {
      * Can be used if you want to convert a buffer to a client packet object.
      */
     @NotNull PacketProcessor packetProcessor();
-
-    /**
-     * Gets the authentication service.
-     *
-     * @return the authentication service
-     */
-    @NotNull AuthenticationService authentication();
-
-    /**
-     * Get the offline player repository.
-     *
-     * @return the offline player repository
-     */
-    @NotNull OfflinePlayerRepository offlinePlayerRepository();
-
-    /**
-     * Gets the economy service.
-     *
-     * @return the economy service
-     */
-    @NotNull EconomyService economy();
 
     /**
      * Exposed socket server.

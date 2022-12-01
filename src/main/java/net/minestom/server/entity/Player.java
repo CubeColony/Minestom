@@ -1,15 +1,12 @@
 package net.minestom.server.entity;
 
-import com.cubecolony.api.economy.game.CCBankAccount;
-import com.cubecolony.api.economy.game.CCPlayerAccount;
-import com.cubecolony.api.economy.store.CCPurchase;
-import com.cubecolony.api.friends.CCFriendshipRequest;
-import com.cubecolony.api.players.CCDiscordAccount;
-import com.cubecolony.api.players.CCPlayer;
-import com.cubecolony.api.players.CCPlayerPreferences;
-import com.cubecolony.api.players.CCSession;
-import com.cubecolony.api.punishments.CCPunishment;
-import com.cubecolony.api.ranks.CCRank;
+import com.cubecolony.api.brainstorm.player.CPlayer;
+import com.cubecolony.api.brainstorm.player.rank.RankAdapter;
+import com.cubecolony.api.brainstorm.player.rank.RankData;
+import com.cubecolony.api.brainstorm.player.rank.WrappedRank;
+import com.cubecolony.api.util.UUIDUtil;
+import com.cubecolony.mariadb.BaseDatabase;
+import com.cubecolony.redis.Redis;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.identity.Identified;
@@ -34,7 +31,8 @@ import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.cubecolony.ranks.Rank;
+import net.minestom.server.cubecolony.brainstorm.BasePlayer;
+import net.minestom.server.cubecolony.brainstorm.PlayerDAO;
 import net.minestom.server.effects.Effects;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.fakeplayer.FakePlayer;
@@ -46,6 +44,7 @@ import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.item.ItemUpdateStateEvent;
 import net.minestom.server.event.item.PickupExperienceEvent;
 import net.minestom.server.event.player.*;
+import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.EntityTracker;
 import net.minestom.server.instance.Instance;
@@ -67,7 +66,6 @@ import net.minestom.server.network.packet.server.login.LoginDisconnectPacket;
 import net.minestom.server.network.packet.server.play.*;
 import net.minestom.server.network.player.PlayerConnection;
 import net.minestom.server.network.player.PlayerSocketConnection;
-import net.minestom.server.permission.Permission;
 import net.minestom.server.recipe.Recipe;
 import net.minestom.server.recipe.RecipeManager;
 import net.minestom.server.resourcepack.ResourcePack;
@@ -98,10 +96,13 @@ import org.jctools.queues.MpscUnboundedXaddArrayQueue;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -124,6 +125,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
     private long lastKeepAlive;
     private boolean answerKeepAlive;
 
+    private long snowflake;
     private String username;
     private Component usernameComponent;
     protected final PlayerConnection playerConnection;
@@ -215,16 +217,17 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
     private Identity identity;
     private final Pointers pointers;
 
-    // CubeColony
-    private final CCPlayer offlinePlayer;
+    // CubeColony - start
+    private static final int REDIS_CACHE_TIME = 60 * 11; // 11 minutes
+    private BasePlayer basePlayer;
+    // CubeColony - end
 
 
-    public Player(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection, @NotNull CCPlayer ccPlayer) {
+    public Player(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         super(EntityType.PLAYER, uuid);
         this.username = username;
         this.usernameComponent = Component.text(username);
         this.playerConnection = playerConnection;
-        this.offlinePlayer = ccPlayer;
 
         setRespawnPoint(Pos.ZERO);
 
@@ -250,7 +253,95 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
                 .withDynamic(Identity.NAME, this::getUsername)
                 .withDynamic(Identity.DISPLAY_NAME, this::getDisplayName)
                 .build();
+
+        // CubeColony - start
+        if (!(this instanceof FakePlayer)) {
+            CompletableFuture.supplyAsync(() -> {
+                final BasePlayer basePlayer = new BasePlayer(this.uuid, this.username);
+                try (final Connection connection = BaseDatabase.connection()) {
+                    final boolean exists = MojangAuth.isEnabled()
+                            ? PlayerDAO.fetchByUniqueId(connection, basePlayer)
+                            : PlayerDAO.fetchByUsername(connection, basePlayer);
+
+                    if (!exists) {
+                        System.out.printf("Creating player '%s'%n", this.username);
+                    }
+
+                    PlayerDAO.update(connection, basePlayer);
+
+                    this.snowflake = basePlayer.snowflake();
+
+                    return basePlayer;
+                } catch (SQLException exception) {
+                    throw new RuntimeException(exception);
+                }
+            }).whenComplete((basePlayer, throwable) -> {
+                this.basePlayer = basePlayer;
+
+                final String key = this.key();
+                if (Redis.exists(key)) {
+                    System.out.println("Found cache");
+                    this.basePlayer = Redis.get(key);
+                }
+
+                this.update();
+
+                RankAdapter adapter = rankAdapter();
+
+                int id = adapter.ranks().size() + 1;
+                WrappedRank rank = new WrappedRank(id, "test-" + id, "", 0);
+                RankData data = new RankData(rank, 0, 0);
+                adapter.add(data);
+
+                for (RankData rankData : adapter.ranks()) {
+                    System.out.printf("Found rank: %s for %s%n", rankData.rank().name(), this.username);
+                }
+
+                this.update();
+            });
+        }
+        // CubeColony - end
     }
+
+    // CubeColony - start
+    public long snowflake() {
+        return this.snowflake;
+    }
+
+    @NotNull String key() {
+        return String.valueOf(this.snowflake);
+    }
+
+    public void update() {
+        Redis.set(this.key(), this.basePlayer, REDIS_CACHE_TIME);
+    }
+
+    /**
+     * Update the expiry of the player's UUID in Redis.
+     */
+    public void touch() {
+        Redis.expire(this.key(), REDIS_CACHE_TIME);
+    }
+
+    /**
+     * Remove the UUID from the Redis cache.
+     */
+    public void expire() {
+        Redis.remove(this.key());
+    }
+
+    public @UnknownNullability CPlayer getBasePlayer() {
+        return this.basePlayer;
+    }
+
+    public RankAdapter rankAdapter() {
+        return this.basePlayer.get(RankAdapter.class);
+    }
+
+    public boolean hasRank(int id) {
+        return rankAdapter().has(id);
+    }
+    // CubeColony - end
 
     /**
      * Used when the player is created.
@@ -2188,114 +2279,113 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
         }
 
     }
-
-    @Override
-    public @NotNull Set<Permission> getAllPermissions() {
-        return ((Rank) getRank()).getAllPermissions();
-    }
-
-    public CCPlayer getOfflinePlayer() {
-        return offlinePlayer;
-    }
-
-    /* Delegated OfflinePlayer methods */
-    public long getId() {
-        return this.offlinePlayer.getId();
-    }
-
-    public long getPlayTime() {
-        return this.offlinePlayer.getPlayTime();
-    }
-
-    public void setPlayTime(long l) {
-        this.offlinePlayer.setPlayTime(l);
-    }
-
-    @NotNull
-    public Date getLastLogin() {
-        return this.offlinePlayer.getLastLogin();
-    }
-
-    public void setLastLogin(@NotNull Date date) {
-        this.offlinePlayer.setLastLogin(date);
-    }
-
-    public @NotNull CCPlayerPreferences getPreferences() {
-        return this.offlinePlayer.getPreferences();
-    }
-
-    public @NotNull CCBankAccount getBankAccount() {
-        return this.offlinePlayer.getBankAccount();
-    }
-
-    public @NotNull CCPlayerAccount getAccount() {
-        return this.offlinePlayer.getAccount();
-    }
-
-    public @Nullable CCRank getRank() {
-        return this.offlinePlayer.getRank();
-    }
-
-    public void setRank(@NotNull CCRank ccRank) {
-        this.offlinePlayer.setRank(ccRank);
-    }
-
-    @NotNull
-    public Set<CCPurchase> getPurchases() {
-        return this.offlinePlayer.getPurchases();
-    }
-
-    @NotNull
-    public Set<CCPunishment> getPunishments() {
-        return this.offlinePlayer.getPunishments();
-    }
-
-    @NotNull
-    public Set<CCSession> getSessions() {
-        return this.offlinePlayer.getSessions();
-    }
-
-    @NotNull
-    public Set<CCFriendshipRequest> getFriendshipRequests() {
-        return this.offlinePlayer.getFriendshipRequests();
-    }
-
-    @NotNull
-    public Set<CCPlayer> getFriends() {
-        return this.offlinePlayer.getFriends();
-    }
-
-    public boolean areFriends(@NotNull CCPlayer ccPlayer) {
-        return this.offlinePlayer.areFriends(ccPlayer);
-    }
-
-    public @Nullable CCSession getCurrentSession() {
-        return this.offlinePlayer.getCurrentSession();
-    }
-
-    public @Nullable CCDiscordAccount getDiscordAccount() {
-        return this.offlinePlayer.getDiscordAccount();
-    }
-
-    public void setDiscordAccount(@Nullable CCDiscordAccount ccDiscordAccount) {
-        this.offlinePlayer.setDiscordAccount(ccDiscordAccount);
-    }
-
-    public boolean hasDiscordAccount() {
-        return this.offlinePlayer.hasDiscordAccount();
-    }
-
-    @NotNull
-    public Date getLastUpdateDate() {
-        return this.offlinePlayer.getLastUpdateDate();
-    }
-
-    @NotNull
-    public Date getCreationDate() {
-        return this.offlinePlayer.getCreationDate();
-    }
-
-    public void update() {
-        MinecraftServer.getDatabase().update(this.offlinePlayer);
-    }
+    //    @Override
+//    public @NotNull Set<Permission> getAllPermissions() {
+//        return ((Rank) getRank()).getAllPermissions();
+//    }
+//
+//    public CCPlayer getOfflinePlayer() {
+//        return offlinePlayer;
+//    }
+//
+//    /* Delegated OfflinePlayer methods */
+//    public long getId() {
+//        return this.offlinePlayer.getId();
+//    }
+//
+//    public long getPlayTime() {
+//        return this.offlinePlayer.getPlayTime();
+//    }
+//
+//    public void setPlayTime(long l) {
+//        this.offlinePlayer.setPlayTime(l);
+//    }
+//
+//    @NotNull
+//    public Date getLastLogin() {
+//        return this.offlinePlayer.getLastLogin();
+//    }
+//
+//    public void setLastLogin(@NotNull Date date) {
+//        this.offlinePlayer.setLastLogin(date);
+//    }
+//
+//    public @NotNull CCPlayerPreferences getPreferences() {
+//        return this.offlinePlayer.getPreferences();
+//    }
+//
+//    public @NotNull CCBankAccount getBankAccount() {
+//        return this.offlinePlayer.getBankAccount();
+//    }
+//
+//    public @NotNull CCPlayerAccount getAccount() {
+//        return this.offlinePlayer.getAccount();
+//    }
+//
+//    public @Nullable CCRank getRank() {
+//        return this.offlinePlayer.getRank();
+//    }
+//
+//    public void setRank(@NotNull CCRank ccRank) {
+//        this.offlinePlayer.setRank(ccRank);
+//    }
+//
+//    @NotNull
+//    public Set<CCPurchase> getPurchases() {
+//        return this.offlinePlayer.getPurchases();
+//    }
+//
+//    @NotNull
+//    public Set<CCPunishment> getPunishments() {
+//        return this.offlinePlayer.getPunishments();
+//    }
+//
+//    @NotNull
+//    public Set<CCSession> getSessions() {
+//        return this.offlinePlayer.getSessions();
+//    }
+//
+//    @NotNull
+//    public Set<CCFriendshipRequest> getFriendshipRequests() {
+//        return this.offlinePlayer.getFriendshipRequests();
+//    }
+//
+//    @NotNull
+//    public Set<CCPlayer> getFriends() {
+//        return this.offlinePlayer.getFriends();
+//    }
+//
+//    public boolean areFriends(@NotNull CCPlayer ccPlayer) {
+//        return this.offlinePlayer.areFriends(ccPlayer);
+//    }
+//
+//    public @Nullable CCSession getCurrentSession() {
+//        return this.offlinePlayer.getCurrentSession();
+//    }
+//
+//    public @Nullable CCDiscordAccount getDiscordAccount() {
+//        return this.offlinePlayer.getDiscordAccount();
+//    }
+//
+//    public void setDiscordAccount(@Nullable CCDiscordAccount ccDiscordAccount) {
+//        this.offlinePlayer.setDiscordAccount(ccDiscordAccount);
+//    }
+//
+//    public boolean hasDiscordAccount() {
+//        return this.offlinePlayer.hasDiscordAccount();
+//    }
+//
+//    @NotNull
+//    public Date getLastUpdateDate() {
+//        return this.offlinePlayer.getLastUpdateDate();
+//    }
+//
+//    @NotNull
+//    public Date getCreationDate() {
+//        return this.offlinePlayer.getCreationDate();
+//    }
+//
+//    public void update() {
+//        MinecraftServer.getDatabase().update(this.offlinePlayer);
+//    }
 }

@@ -1,13 +1,11 @@
 package net.minestom.server;
 
-import io.ebean.Database;
+import com.cubecolony.mariadb.MariaDBManager;
+import com.cubecolony.redis.RedisManager;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minestom.server.advancements.AdvancementManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
-import net.minestom.server.cubecolony.authentification.AuthenticationService;
-import net.minestom.server.cubecolony.economy.EconomyService;
-import net.minestom.server.cubecolony.player.OfflinePlayerRepository;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.GlobalEventHandler;
@@ -71,9 +69,9 @@ final class ServerProcessImpl implements ServerProcess {
     private final Server server;
 
     // CubeColony start
-    private final AuthenticationService authenticationService;
-    private final EconomyService economyService;
-    private final OfflinePlayerRepository offlinePlayerRepository;
+//    private final AuthenticationService authenticationService;
+//    private final EconomyService economyService;
+//    private final OfflinePlayerRepository offlinePlayerRepository;
     // CubeColony end
 
     private final ThreadDispatcher<Chunk> dispatcher;
@@ -107,10 +105,10 @@ final class ServerProcessImpl implements ServerProcess {
         this.ticker = new TickerImpl();
 
         // CubeColony start
-        final Database database = MinecraftServer.getDatabase();
-        this.offlinePlayerRepository = new OfflinePlayerRepository(database);
-        this.authenticationService = new AuthenticationService(database, connection, eventHandler);
-        this.economyService = new EconomyService(database, eventHandler);
+//        final Database database = MinecraftServer.getDatabase();
+//        this.offlinePlayerRepository = new OfflinePlayerRepository(database);
+//        this.authenticationService = new AuthenticationService(database, connection, eventHandler);
+//        this.economyService = new EconomyService(database, eventHandler);
         // CubeColony end
     }
 
@@ -205,22 +203,6 @@ final class ServerProcessImpl implements ServerProcess {
     }
 
     @Override
-    public @NotNull AuthenticationService authentication() {
-        return authenticationService;
-    }
-
-    @Override
-    public @NotNull OfflinePlayerRepository offlinePlayerRepository() {
-        return offlinePlayerRepository;
-    }
-
-    // CubeColony start
-    @Override
-    public @NotNull EconomyService economy() {
-        return economyService;
-    }
-
-    @Override
     public @NotNull Server server() {
         return server;
     }
@@ -229,7 +211,6 @@ final class ServerProcessImpl implements ServerProcess {
     public @NotNull ThreadDispatcher<Chunk> dispatcher() {
         return dispatcher;
     }
-    // CubeColony end
 
     @Override
     public @NotNull Ticker ticker() {
@@ -278,8 +259,8 @@ final class ServerProcessImpl implements ServerProcess {
         LOGGER.info("Stopping " + MinecraftServer.getBrandName() + " server.");
 
         // CubeColony start
-        LOGGER.info("Ending players' sessions...");
-        offlinePlayerRepository.endSessions();
+//        LOGGER.info("Ending players' sessions...");
+//        offlinePlayerRepository.endSessions();
         // CubeColony end
 
         LOGGER.info("Unloading all extensions.");
@@ -292,6 +273,9 @@ final class ServerProcessImpl implements ServerProcess {
         MinestomTerminal.stop();
         dispatcher.shutdown();
         LOGGER.info(MinecraftServer.getBrandName() + " server stopped successfully.");
+
+        RedisManager.invalidate();
+        MariaDBManager.invalidate();
     }
 
     @Override

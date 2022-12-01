@@ -12,16 +12,17 @@ hephaistos = "2.5.3"
 jetbrainsAnnotations = "23.0.0"
 
 # Terminal / Logging
-tinylog = "2.4.1"
+tinylog = "2.5.0"
 jline = "3.21.0"
 
 # CubeColony
-ccapi = "1.6.1-SNAPSHOT"
+ccapi = "1.6.13"
 ebean = "13.9.3"
 mysqlConnector = "8.0.30"
 minimessage = "4.11.0"
 toml4j = "0.7.4-SNAPSHOT"
-redis = "4.3.0"
+redis = "1.0.3"
+mariadb = "1.0.4"
 
 # Performance / Data Structures
 caffeine = "3.0.6"
@@ -37,7 +38,6 @@ mockito = "4.2.0"
 
 # Code Generation
 javaPoet = "1.13.0"
-
 
 # JMH
 jmh = "1.35"
@@ -64,7 +64,8 @@ ccapi = { group = "com.cubecolony", name = "api", version.ref = "ccapi" }
 miniMessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "minimessage" }
 mysqlConnector = { group = "mysql", name = "mysql-connector-java", version.ref = "mysqlConnector" }
 toml4j = { group = "com.moandjiezana.toml", name = "toml4j", version.ref = "toml4j" }
-redis = { group = "redis.clients", name = "jedis", version.ref = "redis" }
+redis = { group = "com.cubecolony", name = "redis", version.ref = "redis" }
+mariadb = { group = "com.cubecolony", name = "mariadb", version.ref = "mariadb" }
 
 # Ebean
 ebean = { group = "io.ebean", name = "ebean-mysql", version.ref = "ebean" }
@@ -122,5 +123,5 @@ flare = ["flare", "flare-fastutil"]
 adventure = ["adventure-api", "adventure-serializer-gson", "adventure-serializer-legacy", "adventure-serializer-plain", "adventure-text-logger-slf4j"]
 logging = ["tinylog-api", "tinylog-impl", "tinylog-slf4j"]
 terminal = ["jline", "jline-jansi"]
-cubeColony = ["ccapi", "mysqlConnector", "redis"]
+cubeColony = ["ccapi", "mysqlConnector", "redis", "mariadb"]
 ebean = ["ebean", "ebean-ddl-generator"]

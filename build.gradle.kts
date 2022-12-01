@@ -78,11 +78,11 @@ dependencies {
     implementation(libs.bundles.cubeColony)
 
     // Ebean
-    implementation(libs.bundles.ebean)
-    annotationProcessor(libs.ebean.query)
-    testImplementation(libs.ebean.test)
-    testImplementation(libs.ebean.sqlite)
-    testImplementation("org.xerial:sqlite-jdbc:3.39.3.0")
+//    implementation(libs.bundles.ebean)
+//    annotationProcessor(libs.ebean.query)
+//    testImplementation(libs.ebean.test)
+//    testImplementation(libs.ebean.sqlite)
+//    testImplementation("org.xerial:sqlite-jdbc:3.39.3.0")
 
     // Minestom Data (From MinestomDataGenerator)
     implementation(libs.minestomData)
@@ -99,7 +99,7 @@ publishing {
             pom {
                 group = "com.cubecolony"
                 artifactId = "cubestom"
-                version = "1.3.8"
+                version = "1.3.9"
             }
 
             from(components["java"])
