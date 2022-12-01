@@ -1,5 +1,6 @@
 package net.minestom.server.cubecolony.brainstorm;
 
+import com.cubecolony.api.annotation.Documented;
 import com.cubecolony.api.util.UUIDUtil;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Blocking;
@@ -9,14 +10,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 
 /**
  * @author LBuke (Teddeh)
  */
+@Documented
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 public final class PlayerDAO {
 
+    /**
+     * It fetches a player's snowflake from the database, given their username.
+     *
+     * @param connection The connection to the database.
+     * @param player The player to fetch data for.
+     * @return true if exists in the database.
+     */
     @Blocking
     public static boolean fetchByUniqueId(@NotNull Connection connection, @NotNull BasePlayer player) {
         @Language("SQL")
@@ -39,6 +47,14 @@ public final class PlayerDAO {
         }
     }
 
+    /**
+     * It fetches a player's snowflake and unique ID from the database,
+     * given their username.
+     *
+     * @param connection The connection to the database.
+     * @param player The player to fetch data for.
+     * @return true if exists in the database.
+     */
     @Blocking
     public static boolean fetchByUsername(@NotNull Connection connection, @NotNull BasePlayer player) {
         @Language("SQL")
@@ -62,6 +78,13 @@ public final class PlayerDAO {
         }
     }
 
+    /**
+     * It inserts a new row into the `account` table if the player doesn't exist,
+     * or updates the player's username if they do.
+     *
+     * @param connection The connection to the database.
+     * @param player The player to update.
+     */
     @Blocking
     public static void update(@NotNull Connection connection, @NotNull BasePlayer player) {
         final long snowflake = (player.snowflake() == 0L ? System.currentTimeMillis() << 22 : player.snowflake);
