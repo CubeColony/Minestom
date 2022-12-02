@@ -2,9 +2,6 @@ package net.minestom.server.cubecolony.brainstorm;
 
 import com.cubecolony.api.brainstorm.adapter.Adaptor;
 import com.cubecolony.api.brainstorm.player.CPlayer;
-import com.cubecolony.api.brainstorm.player.rank.RankAdapter;
-import com.cubecolony.api.brainstorm.player.rank.RankData;
-import com.cubecolony.api.brainstorm.player.rank.WrappedRank;
 import com.cubecolony.redis.Redisable;
 import com.google.common.collect.Maps;
 import com.google.gson.annotations.SerializedName;
@@ -25,18 +22,9 @@ public final class BasePlayer implements CPlayer, Redisable {
     @SerializedName("uuid")     UUID uniqueId;
     @SerializedName("username") private String username;
 
-    public BasePlayer() {}
-
     public BasePlayer(@NotNull UUID uniqueId, @NotNull String username) {
         this.uniqueId = uniqueId;
         this.username = username;
-
-        final RankAdapter rankAdapter = new RankAdapter();
-
-        final int id = rankAdapter.ranks().size() + 1;
-        rankAdapter.add(new RankData(new WrappedRank(id, "test-" + id, "", 1), 0, 0));
-
-        this.add(rankAdapter);
     }
 
     @Override

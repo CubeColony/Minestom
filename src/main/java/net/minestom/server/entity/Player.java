@@ -1,10 +1,7 @@
 package net.minestom.server.entity;
 
 import com.cubecolony.api.brainstorm.player.CPlayer;
-import com.cubecolony.api.brainstorm.player.rank.RankAdapter;
-import com.cubecolony.api.brainstorm.player.rank.RankData;
-import com.cubecolony.api.brainstorm.player.rank.WrappedRank;
-import com.cubecolony.api.util.UUIDUtil;
+import com.cubecolony.api.brainstorm.player.rank.RankAdaptor;
 import com.cubecolony.mariadb.BaseDatabase;
 import com.cubecolony.redis.Redis;
 import net.kyori.adventure.audience.MessageType;
@@ -275,7 +272,8 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
                 } catch (SQLException exception) {
                     throw new RuntimeException(exception);
                 }
-            }).whenComplete((basePlayer, throwable) -> {
+            })
+            .whenComplete((basePlayer, throwable) -> {
                 this.basePlayer = basePlayer;
 
                 final String key = this.key();
@@ -285,63 +283,10 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
                 }
 
                 this.update();
-
-                RankAdapter adapter = rankAdapter();
-
-                int id = adapter.ranks().size() + 1;
-                WrappedRank rank = new WrappedRank(id, "test-" + id, "", 0);
-                RankData data = new RankData(rank, 0, 0);
-                adapter.add(data);
-
-                for (RankData rankData : adapter.ranks()) {
-                    System.out.printf("Found rank: %s for %s%n", rankData.rank().name(), this.username);
-                }
-
-                this.update();
             });
         }
         // CubeColony - end
     }
-
-    // CubeColony - start
-    public long snowflake() {
-        return this.snowflake;
-    }
-
-    @NotNull String key() {
-        return String.valueOf(this.snowflake);
-    }
-
-    public void update() {
-        Redis.set(this.key(), this.basePlayer, REDIS_CACHE_TIME);
-    }
-
-    /**
-     * Update the expiry of the player's UUID in Redis.
-     */
-    public void touch() {
-        Redis.expire(this.key(), REDIS_CACHE_TIME);
-    }
-
-    /**
-     * Remove the UUID from the Redis cache.
-     */
-    public void expire() {
-        Redis.remove(this.key());
-    }
-
-    public @UnknownNullability CPlayer getBasePlayer() {
-        return this.basePlayer;
-    }
-
-    public RankAdapter rankAdapter() {
-        return this.basePlayer.get(RankAdapter.class);
-    }
-
-    public boolean hasRank(int id) {
-        return rankAdapter().has(id);
-    }
-    // CubeColony - end
 
     /**
      * Used when the player is created.
@@ -2388,4 +2333,45 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
 //    public void update() {
 //        MinecraftServer.getDatabase().update(this.offlinePlayer);
 //    }
+
+    // CubeColony - start
+    public long snowflake() {
+        return this.snowflake;
+    }
+
+    @NotNull String key() {
+        return String.valueOf(this.snowflake);
+    }
+
+    public void update() {
+        Redis.set(this.key(), this.basePlayer, REDIS_CACHE_TIME);
+    }
+
+    /**
+     * Update the expiry of the player's UUID in Redis.
+     */
+    public void touch() {
+        Redis.expire(this.key(), REDIS_CACHE_TIME);
+    }
+
+    /**
+     * Remove the UUID from the Redis cache.
+     */
+    public void expire() {
+        Redis.remove(this.key());
+    }
+
+    public @UnknownNullability CPlayer getBasePlayer() {
+        return this.basePlayer;
+    }
+
+    public @Nullable RankAdaptor rankAdapter() {
+        return this.basePlayer.get(RankAdaptor.class);
+    }
+
+    public boolean hasRank(int id) {
+        final RankAdaptor adaptor = this.rankAdapter();
+        return !Objects.isNull(adaptor) && adaptor.has(id);
+    }
+    // CubeColony - end
 }
