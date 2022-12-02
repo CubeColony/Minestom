@@ -101,6 +101,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -2361,14 +2362,23 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
         Redis.remove(this.key());
     }
 
-    public @UnknownNullability CPlayer getBasePlayer() {
+    public @UnknownNullability CPlayer base() {
         return this.basePlayer;
+    }
+
+    public boolean hasPlayedBefore() {
+        return this.basePlayer.hasPlayedBefore();
+    }
+
+    public Instant accountCreation() {
+        return this.basePlayer.accountCreation();
     }
 
     public @Nullable RankAdaptor rankAdapter() {
         return this.basePlayer.get(RankAdaptor.class);
     }
 
+    // TODO: Make sure the rank isn't expired.
     public boolean hasRank(int id) {
         final RankAdaptor adaptor = this.rankAdapter();
         return !Objects.isNull(adaptor) && adaptor.has(id);

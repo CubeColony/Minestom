@@ -5,6 +5,7 @@ import com.cubecolony.api.brainstorm.player.CPlayer;
 import com.cubecolony.redis.Redisable;
 import com.google.common.collect.Maps;
 import com.google.gson.annotations.SerializedName;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -13,14 +14,16 @@ import java.util.UUID;
 /**
  * @author LBuke (Teddeh)
  */
+@ApiStatus.NonExtendable
 public final class BasePlayer implements CPlayer, Redisable {
 
     @SerializedName("adaptors")
     private final Map<Class<? extends Adaptor<?>>, Adaptor<?>> adaptors = Maps.newConcurrentMap();
 
-    @SerializedName("snowflake") long snowflake;
-    @SerializedName("uuid")     UUID uniqueId;
-    @SerializedName("username") private String username;
+    @SerializedName("snowflake")      long snowflake;
+    @SerializedName("uuid")          UUID uniqueId;
+    @SerializedName("username")      String username;
+    @SerializedName("played_before") boolean playedBefore;
 
     public BasePlayer(@NotNull UUID uniqueId, @NotNull String username) {
         this.uniqueId = uniqueId;
@@ -45,6 +48,11 @@ public final class BasePlayer implements CPlayer, Redisable {
     @Override
     public void username(@NotNull String username) {
         this.username = username;
+    }
+
+    @Override
+    public boolean hasPlayedBefore() {
+        return this.playedBefore;
     }
 
     @Override

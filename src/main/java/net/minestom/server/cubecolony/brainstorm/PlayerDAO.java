@@ -36,8 +36,10 @@ public final class PlayerDAO {
         try (final PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, UUIDUtil.strip(player.uniqueId()));
             try (final ResultSet result = statement.executeQuery()) {
-                if (!result.next())
+                if (!result.next()) {
+                    player.playedBefore = false;
                     return false;
+                }
 
                 player.snowflake = result.getLong("id");
                 return true;
@@ -66,8 +68,10 @@ public final class PlayerDAO {
         try (final PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, player.username());
             try (final ResultSet result = statement.executeQuery()) {
-                if (!result.next())
+                if (!result.next()) {
+                    player.playedBefore = false;
                     return false;
+                }
 
                 player.snowflake = result.getLong("id");
                 player.uniqueId = UUIDUtil.build(result.getString("unique_id"));
