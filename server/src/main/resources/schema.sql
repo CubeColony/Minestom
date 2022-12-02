@@ -1,33 +1,39 @@
 CREATE TABLE IF NOT EXISTS `account` (
-    `id`       BIGINT      NOT NULL,
-    `username` VARCHAR(16) NOT NULL,
-    `uuid`     BINARY(16)  NOT NULL,
-    PRIMARY KEY (`id`),
+    `id`       BIGINT      NOT NULL, -- id can be deconstructed into a timestamp, Instant.ofEpochMilli(id >> 22).
+    `username` VARCHAR(16) NOT NULL, -- players username, updated everytime a player joins.
+    `uuid`     BINARY(16)  NOT NULL, -- players stripped uuid, can be constructed with UUIDUtil.build(HEX(uuid)).
+    PRIMARY KEY (`id`, `uuid`),
     UNIQUE KEY `uuid` (`uuid`)
 );
 
--- CREATE TABLE IF NOT EXISTS `account_discord` (
---     `id`        BIGINT      NOT NULL AUTO_INCREMENT,
---     `snowflake`  BIGINT      NOT NULL UNIQUE,
---     `username`  VARCHAR(32) NOT NULL,
---     `nickname`  VARCHAR(32) NULL,
---     PRIMARY KEY (`id`, `snowflake`)
--- );
---
--- CREATE TABLE IF NOT EXISTS `account_website` (
---     `id`       BIGINT       NOT NULL AUTO_INCREMENT,
---     `email`    VARCHAR(255) NOT NULL UNIQUE,
---     `username` VARCHAR(32)  NOT NULL,
---     PRIMARY KEY (`id`, `email`)
--- );
---
--- CREATE TABLE IF NOT EXISTS `account_bridge` (
---     `id`         INT(11) NOT NULL AUTO_INCREMENT,
---     `account_id` INT(11) NULL UNIQUE,
---     `discord_id` INT(11) NULL UNIQUE,
---     `website_id` INT(11) NULL UNIQUE,
---     PRIMARY KEY (`id`),
---     FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE CASCADE,
---     FOREIGN KEY (`discord_id`) REFERENCES `account_discord` (`id`) ON DELETE CASCADE,
---     FOREIGN KEY (`website_id`) REFERENCES `account_website` (`id`) ON DELETE CASCADE
--- );
+CREATE TABLE IF NOT EXISTS `account_discord` (
+    `account_id` BIGINT      NOT NULL,
+    `snowflake`   BIGINT      NOT NULL,
+    `username`   VARCHAR(32) NOT NULL,
+    `nickname`   VARCHAR(32) NULL,
+    PRIMARY KEY (`account_id`, `snowflake`),
+    UNIQUE KEY `snowflake` (`snowflake`),
+    FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `rank` (
+    `id`     BIGINT       NOT NULL, -- id can be deconstructed into a timestamp, Instant.ofEpochMilli(id >> 22).
+    `name`   VARCHAR(16)  NOT NULL, -- human-readable rank name.
+    `weight` TINYINT      NOT NULL, -- rank weight, determines importance.
+    `prefix`  VARCHAR(255) NOT NULL, -- rank prefix, can contain colors, symbols, bitmap characters.
+    `font`   VARCHAR(32)  NOT NULL, -- rank font, this is for when bitmap fonts are needed for the prefix.
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `name` (`name`),
+    UNIQUE KEY `weight` (`weight`)
+);
+
+CREATE TABLE IF NOT EXISTS `account_rank` (
+    `account_id`  BIGINT    NOT NULL, -- the id reference to the player.
+    `rank_id`     BIGINT    NOT NULL, -- the id reference to the rank.
+    `issued_by`   VARCHAR   NOT NULL, -- the issuer, ei. console, store, event, player_name.
+    `acquired_at` TIMESTAMP NOT NULL, -- the time the rank was acquired by the player.
+    `expires_at`  TIMESTAMP NOT NULL, -- the time the rank expires, defaults to 2099/1/1.
+    PRIMARY KEY (`account_id`, `rank_id`),
+    FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`rank_id`) REFERENCES `rank` (`id`) ON DELETE CASCADE
+);
